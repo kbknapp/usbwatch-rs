@@ -1,5 +1,7 @@
 use clap::*;
 
+#[macro_use]
+mod macros;
 mod usb_event;
 mod cli;
 mod cmds;
