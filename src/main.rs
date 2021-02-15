@@ -24,6 +24,7 @@ pub fn main() {
         Some(CreateRule(a)) => cmds::create_rule::run(a),
         Some(Listen(a)) => cmds::listen::run(a),
         Some(Run(a)) => cmds::run::run(a),
+        Some(Check(a)) => cmds::check::run(a),
         None => todo!("Impl no subcommand")
     }
 }
