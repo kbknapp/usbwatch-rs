@@ -7,6 +7,7 @@ mod cli;
 mod cmds;
 mod device;
 mod port;
+mod rule;
 
 pub fn main() {
     // enable logging
