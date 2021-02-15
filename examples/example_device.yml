@@ -1,0 +1,29 @@
+---
+# Multiple devices can be listed in a single file
+devices:
+  # A device starts with a `name`
+  #
+  # The `name` is a human friendly way to reference in rule files
+  - name: 'Sandisk Cruzer'
+    # All below properties are defined by udev and can be found by using the
+    # `usbwatch listen --objects=devices --format=yaml` command and
+    # adding/removing the desired device
+    #
+    # All properties are optional, and are logical AND (i.e. all properties must
+    # match exactly to trigger device match). The more specific, the less likely a
+    # similar device will trigger a match.
+    #
+    # Not being specific enough, can trigger a rule when a similar device is
+    # detected (i.e. just specifying `ID_VENDOR: SanDisk` will trigger on all
+    # SanDisk devices)
+    ID_MODEL: 'Ultra_Fit'
+    ID_MODEL_ENC: "Ultra\\x20Fit"
+    ID_MODEL_FROM_DATABASE: "Ultra Fit"
+    ID_MODEL_ID: "5583"
+    ID_SERIAL: "SanDisk_Ultra_Fit_4C530123260925119515"
+    ID_SERIAL_SHORT: "4C530123260925119515"
+    ID_VENDOR: "SanDisk"
+    ID_VENDOR_ENC: "SanDisk"
+    ID_VENDOR_FROM_DATABASE: "SanDisk Corp."
+    ID_VENDOR_ID: "0781"
+    PRODUCT: "781/5583/100"

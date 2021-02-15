@@ -1,0 +1,48 @@
+---
+rules:
+  - name: "My Rule"
+
+    # Match is logical AND (both a device, and a port [if any] must match)
+    match:
+      # Trigger rule on, connect, disconnect, all
+      on: connect
+
+      # Devices are logical OR (any of these devices)
+      #
+      # Duplicate devices by default emmit a warning, but can be changed to
+      # errors, or ignored if desired.
+      #
+      # If no devices are defined, all devices will trigger match
+      devices:
+        # Can use "name" field of loaded device files
+        - "Sandisk Cruzer"
+        # Can include device files
+        - include_devices: "examples/example_device.yml"
+        # Can be included inline
+        - name: "My other device"
+          ID_SERIAL_SHORT: "4C530123260925119515"
+
+      # Ports are logical OR (any of these ports)
+      #
+      # Duplicate ports by default emmit a warning, but can be changed to errors,
+      # or ignored if desired.
+      #
+      # If no ports are defined, all ports will trigger match
+      ports:
+        # Can use "name" field of loaded port files
+        - "Left 3.0"
+        # Can include port files
+        - include_ports: "examples/example_port.yml"
+        # Can be included inline
+        - name: "My other port"
+          ID_PATH: "pci-0000:00:14.0-usb-0:1"
+
+    # Default command shell is /bin/bash, but can be overridden
+    #
+    # The "command:" will be provided to the shell as an input argument
+    # i.e. /bin/bash $command_file
+    command_shell: /bin/bash
+
+    # Will be saved as a temporary file and execute with the command_shell:
+    command: |
+      echo "Cruzer plugged in!" > usb.log
