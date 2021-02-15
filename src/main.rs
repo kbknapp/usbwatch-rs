@@ -5,6 +5,7 @@ mod macros;
 mod usb_event;
 mod cli;
 mod cmds;
+mod tokio_udev;
 mod device;
 mod port;
 mod rule;
