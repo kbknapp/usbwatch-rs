@@ -1,0 +1,16 @@
+[Unit]
+Description=USBWatch
+After=mutli-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/usbwatch run \
+                            --rules /etc/usbwatch/rules.yml \
+                            --devices /etc/usbwatch/devices.yml \
+                            --ports /etc/usbwatch/ports.yml
+PIDFile=/var/run/usbwatch.pid
+User=root
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target
