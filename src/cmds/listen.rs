@@ -1,3 +1,4 @@
+use std::ffi::OsStr;
 use std::future::Future;
 
 use futures_core::stream::Stream;
@@ -6,9 +7,9 @@ use tokio::time::{self, Duration};
 use tokio::signal;
 use tokio_stream::StreamExt;
 use tracing::{debug, error, info, instrument};
-use tokio_udev;
+use tokio_udev::{self, EventType};
 
-use crate::cli::ListenArgs;
+use crate::{cli::ListenArgs, tokio_udev::DebugDevice};
 
 /// Server listener state. Created in the `run` call. It includes a `run` method
 /// which performs the TCP listening and initialization of per-connection state.
@@ -43,22 +44,30 @@ struct Listener {
 impl Listener {
     async fn run(&mut self)  {
         let mon = tokio_udev::MonitorBuilder::new().unwrap();
-        let mut listen = mon.match_subsystem("usb").unwrap().listen().unwrap();
+        let mut listen = mon.match_subsystem("usb")
+                            .unwrap()
+                            .listen()
+                            .unwrap()
+                            // .filter(|e| {
+                            //     let d = e.as_ref().unwrap().device();
+                            //     Some(OsStr::new("usb_interface")) != d.devtype()
+                            // })
+                            .filter(|e| {
+                                let et = e.as_ref().unwrap().event_type();
+                                et == EventType::Add || et == EventType::Remove
+                            });
 
         loop {
-            // Spawn a new task to process the connections. Tokio tasks are like
-            // asynchronous green threads and are executed concurrently.
-            //tokio::spawn(async move {
-                match listen.next().await {
-                    Some(Ok(e)) => {
-                        println!("device: {:?}, event: {:?}", e.device().syspath(), e.event_type());
-                    }
-                    Some(Err(err)) => {
-                        error!(cause = ?err, "connection error");
-                    }
-                    None =>(),
+            match listen.next().await {
+                Some(Ok(e)) => {
+                    let dd = DebugDevice::new(e.device());
+                    println!("event: {:?} for {:#?}", e.event_type(), dd);
                 }
-            //});
+                Some(Err(err)) => {
+                    error!(cause = ?err, "connection error");
+                }
+                None => (),
+            }
         }
     }
 }
@@ -80,25 +89,6 @@ async fn listen() {
         shutdown_complete_rx,
     };
 
-    // Concurrently run the listener and listen for the `shutdown` signal. The
-    // listener task runs until an error is encountered, so under normal
-    // circumstances, this `select!` statement runs until the `shutdown` signal
-    // is received.
-    //
-    // `select!` statements are written in the form of:
-    //
-    // ```
-    // <result of async op> = <async op> => <step to perform with result>
-    // ```
-    //
-    // All `<async op>` statements are executed concurrently. Once the **first**
-    // op completes, its associated `<step to perform with result>` is
-    // performed.
-    //
-    // The `select! macro is a foundational building block for writing
-    // asynchronous Rust. See the API docs for more details:
-    //
-    // https://docs.rs/tokio/*/tokio/macro.select.html
     tokio::select! {
         _ = listener.run() => {
             info!("shutting down");
@@ -132,12 +122,10 @@ async fn listen() {
 }
 
 pub fn run(la: ListenArgs) {
-    tokio::runtime::Builder::new_multi_thread()
-        .enable_all()
+    tokio::runtime::Builder::new_current_thread()
+        .enable_io()
         .build()
         .unwrap()
-        .block_on(async {
-            listen().await
-        })
+        .block_on(listen())
 }
 
