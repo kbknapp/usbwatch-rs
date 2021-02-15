@@ -4,6 +4,7 @@ mod usb_event;
 mod cli;
 mod cmds;
 mod device;
+mod port;
 
 pub fn main() {
     // enable logging
