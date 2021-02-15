@@ -2,13 +2,14 @@ use clap::*;
 
 #[macro_use]
 mod macros;
-mod usb_event;
 mod cli;
 mod cmds;
-mod tokio_udev;
 mod device;
+mod listen;
 mod port;
 mod rule;
+mod tokio_udev;
+mod usb_event;
 
 pub fn main() {
     // enable logging
@@ -26,6 +27,6 @@ pub fn main() {
         Some(Listen(a)) => cmds::listen::run(a),
         Some(Run(a)) => cmds::run::run(a),
         Some(Check(a)) => cmds::check::run(a),
-        None => todo!("Impl no subcommand")
+        None => todo!("Impl no subcommand"),
     }
 }
