@@ -3,6 +3,7 @@ use clap::*;
 mod usb_event;
 mod cli;
 mod cmds;
+mod device;
 
 pub fn main() {
     // enable logging
