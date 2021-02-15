@@ -2,7 +2,7 @@ mod r#match;
 
 use std::{path::PathBuf, ffi::OsString, fmt::{self, Debug}};
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use yaml_rust::Yaml;
 
 use r#match::Match;
@@ -13,7 +13,7 @@ pub struct Rules {
 }
 
 impl<'a> From<&'a Yaml> for Rules {
-    fn from(mut yaml: &'a Yaml) -> Self {
+    fn from(yaml: &'a Yaml) -> Self {
         let mut rules = Vec::new();
         if let Some(yaml_rules) = yaml["rules"].as_vec() {
             for r in yaml_rules {
@@ -36,7 +36,7 @@ pub struct Rule {
 }
 
 impl<'a> From<&'a Yaml> for Rule {
-    fn from(mut yaml: &'a Yaml) -> Self {
+    fn from(yaml: &'a Yaml) -> Self {
         let name: String = if let Some(name) = yaml["name"].as_str() {
             name.into()
         } else {

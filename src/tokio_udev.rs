@@ -1,4 +1,4 @@
-use std::fmt::{self, Debug};
+use std::fmt::{self};
 
 use tokio_udev::{self, Device, Property, Attribute};
 
@@ -39,7 +39,7 @@ pub struct DebugProperty {
 }
 
 impl DebugProperty {
-    pub fn new(prop: Property) -> Self {
+    pub fn new(prop: Property<'_>) -> Self {
         Self {
             name: prop.name().to_string_lossy().to_string(),
             value: prop.value().to_string_lossy().to_string()
@@ -61,7 +61,7 @@ pub struct DebugAttribute {
 }
 
 impl DebugAttribute {
-    pub fn new(attr: Attribute) -> Self {
+    pub fn new(attr: Attribute<'_>) -> Self {
         Self {
             name: attr.name().to_string_lossy().to_string(),
             value: attr.value().map(|v| v.to_string_lossy().to_string())

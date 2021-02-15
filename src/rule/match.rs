@@ -23,7 +23,7 @@ impl Match {
 }
 
 impl<'a> From<&'a Yaml> for Match {
-    fn from(mut yaml: &'a Yaml) -> Self {
+    fn from(yaml: &'a Yaml) -> Self {
         let mut m = if let Some(on_event) = yaml["on"].as_str() {
             Match::new(on_event.parse().unwrap())
         } else {

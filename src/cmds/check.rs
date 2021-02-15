@@ -1,4 +1,4 @@
-use std::{fs::{self, File}, io::Read};
+use std::{fs::{self, File}};
 
 use serde_yaml;
 use yaml_rust::YamlLoader;
@@ -25,7 +25,7 @@ pub fn run(a: CheckArgs) {
     }
 
     if let Some(path) = a.rules {
-        let mut buf = fs::read_to_string(path).unwrap();
+        let buf = fs::read_to_string(path).unwrap();
         let rules = Rules::from(&YamlLoader::load_from_str(&*buf).unwrap()[0]);
         println!("{:#?}", rules);
     }

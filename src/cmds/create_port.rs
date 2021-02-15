@@ -1,3 +1,3 @@
 use crate::cli::CreatePortArgs;
 
-pub fn run(cda: CreatePortArgs) {}
+pub fn run(_cda: CreatePortArgs) {}

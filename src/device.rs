@@ -45,7 +45,7 @@ impl Device {
 }
 
 impl<'a> From<&'a Yaml> for Device {
-    fn from(mut yaml: &'a Yaml) -> Self {
+    fn from(yaml: &'a Yaml) -> Self {
         let mut device = if let Some(name) = yaml["name"].as_str() {
             Device::new(name)
         } else {

@@ -39,7 +39,7 @@ impl Port {
 }
 
 impl<'a> From<&'a Yaml> for Port {
-    fn from(mut yaml: &'a Yaml) -> Self {
+    fn from(yaml: &'a Yaml) -> Self {
         let mut port = if let Some(name) = yaml["name"].as_str() {
             Port::new(name)
         } else {

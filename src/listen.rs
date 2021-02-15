@@ -1,15 +1,15 @@
-use std::{fs, ffi::OsStr};
+use std::{ffi::OsStr};
 use std::future::Future;
 
-use futures_core::stream::Stream;
-use tokio::sync::{broadcast, mpsc, Semaphore};
-use tokio::time::{self, Duration};
+
+use tokio::sync::{broadcast, mpsc};
+
 use tokio::signal;
 use tokio_stream::StreamExt;
 use tracing::{debug, error, info, instrument};
 use tokio_udev::{self, EventType};
 
-use crate::{cli::ListenArgs, tokio_udev::DebugDevice};
+use crate::{tokio_udev::DebugDevice};
 /// Udev listener state. Created in the `run` call. It includes a `run` method
 /// which performs the TCP listening and initialization of per-connection state.
 #[derive(Debug)]
