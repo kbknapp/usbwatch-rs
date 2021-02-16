@@ -10,6 +10,7 @@ mod port;
 mod rule;
 mod tokio_udev;
 mod usb_event;
+mod shutdown;
 
 pub fn main() {
     // enable logging
