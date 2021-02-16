@@ -1,3 +1,5 @@
+#[macro_use]
+extern crate bitflags;
 use clap::*;
 
 #[macro_use]
