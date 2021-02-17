@@ -4,8 +4,8 @@ rules:
 
     # Match is logical AND (both a device, and a port [if any] must match)
     match:
-      # Trigger rule on, connect, disconnect, all
-      on: connect
+      # Trigger rule on; add, remove, all
+      on: add
 
       # Devices are logical OR (any of these devices)
       #
