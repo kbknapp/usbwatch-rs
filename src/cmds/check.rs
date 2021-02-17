@@ -1,14 +1,13 @@
-use std::{fs::{self, File}};
+use std::fs::{self, File};
 
 use serde_yaml;
+use tracing::{self, debug, error, info, instrument, trace, warn};
 use yaml_rust::YamlLoader;
-use tracing::{self, debug, warn, error, info, trace, instrument};
 
 use crate::{
-    usb::{UsbDevice, UsbDevices, UsbPort, UsbPorts},
     cli::CheckArgs,
-    rule::{Rule, Rules},
-
+    rule::Rules,
+    usb::{UsbDevices, UsbPorts},
 };
 
 #[tracing::instrument]

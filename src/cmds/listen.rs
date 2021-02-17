@@ -1,17 +1,11 @@
-use std::sync::{Arc};
-use std::{ffi::OsStr};
-use std::future::Future;
 
 use tracing::{self, debug, warn, error, info, trace, instrument};
 use tokio::sync::{broadcast, mpsc};
 use tokio::signal::unix::{signal, SignalKind};
-use tokio_stream::StreamExt;
-use tokio_udev::{self, EventType};
 
 use crate::{
     cli::{OutFormat, ListenArgs, ListenForObject},
-    listener::{UdevListener },
-    tokio_udev::DebugDevice,
+    listener::UdevListener,
     shutdown::Shutdown,
     udev::UdevEvent,
     usb::UsbEvent,

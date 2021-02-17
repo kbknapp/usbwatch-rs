@@ -1,11 +1,14 @@
+use std::collections::HashMap;
 use std::fs::{self, File};
 use std::path::Path;
-use std::collections::HashMap;
 
-use tracing::{self, debug, warn, error, info, trace, instrument};
+use tracing::{self, debug, error, info, instrument, trace, warn};
 use yaml_rust::YamlLoader;
 
-use crate::{rule::{Rules, Rule}, usb::{UsbPort, UsbDevice, UsbPorts, UsbDevices}};
+use crate::{
+    rule::{Rule, Rules},
+    usb::{UsbDevice, UsbDevices, UsbPort, UsbPorts},
+};
 
 #[derive(Default)]
 pub struct State {
@@ -16,7 +19,7 @@ pub struct State {
     slot_map: HashMap<usize, Option<usize>>,
     // Device->Port
     rev_slot_map: HashMap<usize, usize>,
-    pub rules: Vec<Rule>
+    pub rules: Vec<Rule>,
 }
 
 impl State {
@@ -91,9 +94,15 @@ impl State {
                     if d == &device {
                         debug!("Found device");
 
-                        debug!(i=i,j=j, "Setting slot {} to device index {}", i, j);
+                        debug!(i = i, j = j, "Setting slot {} to device index {}", i, j);
                         *self.slot_map.entry(i).or_insert(Some(j)) = Some(j);
-                        debug!(i=i,j=j, "Setting reverse slot map device index {} to slot {}", j, i);
+                        debug!(
+                            i = i,
+                            j = j,
+                            "Setting reverse slot map device index {} to slot {}",
+                            j,
+                            i
+                        );
                         *self.rev_slot_map.entry(j).or_insert(i) = i;
                         debug!("Activating device index {}", j);
                         self.active_devices.push(j);
@@ -113,7 +122,10 @@ impl State {
             if d == &device {
                 debug!("Found device");
                 if let Some(p) = self.rev_slot_map.get_mut(&i) {
-                    debug!("Found port index {} via device reverse slot map index {}", p, i);
+                    debug!(
+                        "Found port index {} via device reverse slot map index {}",
+                        p, i
+                    );
                     debug!("Setting slot map {} to None", p);
                     *self.slot_map.entry(*p).or_insert(None) = None;
                 }

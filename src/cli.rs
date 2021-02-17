@@ -1,7 +1,6 @@
-use std::{str::FromStr, path::PathBuf};
+use std::path::PathBuf;
 
 use clap::Clap;
-use serde::{Serialize, Deserialize};
 
 use crate::usb::UsbEvent;
 
@@ -13,7 +12,7 @@ pub struct UsbWatchArgs {
     pub verbose: bool,
 
     #[clap(subcommand)]
-    pub subcmd: Option<UsbWatchSubCmd>
+    pub subcmd: Option<UsbWatchSubCmd>,
 }
 
 #[derive(Clap)]
@@ -38,27 +37,29 @@ pub enum UsbWatchSubCmd {
     Check(CheckArgs),
 }
 
-#[derive(Clap, Debug)] pub struct CreateDeviceArgs {}
+#[derive(Clap, Debug)]
+pub struct CreateDeviceArgs {}
 
-#[derive(Clap, Debug)] pub struct CreatePortArgs {}
+#[derive(Clap, Debug)]
+pub struct CreatePortArgs {}
 
 #[derive(Clap, Debug)]
 pub struct CreateRuleArgs {
     /// USB Event activate the rule
-    #[clap(long, short, arg_enum, default_value="All")]
+    #[clap(long, short, arg_enum, default_value = "All")]
     pub on: UsbEvent,
 }
 
 #[derive(Clap, Copy, Clone, Debug)]
 pub struct ListenArgs {
     /// Only display KIND of objects
-    #[clap(long, short, arg_enum, value_name = "KIND", default_value="all")]
+    #[clap(long, short, arg_enum, value_name = "KIND", default_value = "all")]
     pub object: ListenForObject,
     /// Only display KIND of events
-    #[clap(long, short, arg_enum, value_name = "KIND", default_value="all")]
+    #[clap(long, short, arg_enum, value_name = "KIND", default_value = "all")]
     pub events: UsbEvent,
     /// Display output in format
-    #[clap(long, short, arg_enum, value_name = "FORMAT", default_value="raw")]
+    #[clap(long, short, arg_enum, value_name = "FORMAT", default_value = "raw")]
     pub format: OutFormat,
 }
 
@@ -66,7 +67,7 @@ pub struct ListenArgs {
 pub enum ListenForObject {
     Ports,
     Devices,
-    All
+    All,
 }
 
 #[derive(Clap, Copy, Clone, Debug, PartialEq)]
@@ -85,7 +86,7 @@ pub struct RunArgs {
     pub devices: Option<PathBuf>,
     /// Ports to match against
     #[clap(long, short)]
-    pub ports:  Option<PathBuf>,
+    pub ports: Option<PathBuf>,
 }
 
 #[derive(Clap, Debug)]
@@ -98,5 +99,5 @@ pub struct CheckArgs {
     pub devices: Option<PathBuf>,
     /// Ports to match against
     #[clap(long, short)]
-    pub ports:  Option<PathBuf>,
+    pub ports: Option<PathBuf>,
 }

@@ -1,6 +1,6 @@
-use serde::{Serialize};
+use serde::Serialize;
 
-use crate::usb::{UsbEvent, UsbDevice, UsbPort};
+use crate::usb::{UsbDevice, UsbEvent, UsbPort};
 
 #[derive(Clone, PartialEq, Debug, Serialize)]
 pub struct UdevEvent {

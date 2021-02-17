@@ -1,17 +1,16 @@
-
-use std::{ffi::OsString, fmt::{self, Debug}};
+use std::fmt::Debug;
 
 use serde::{Deserialize, Serialize};
 use yaml_rust::Yaml;
 
 #[derive(Deserialize, Serialize, PartialEq, Debug)]
 pub struct UsbPorts {
-    pub ports: Vec<UsbPort>
+    pub ports: Vec<UsbPort>,
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct UsbPort {
-    #[serde(serialize_with= "super::empty_if_none")]
+    #[serde(serialize_with = "super::empty_if_none")]
     pub name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     syspath: Option<String>,
@@ -40,14 +39,14 @@ impl UsbPort {
     }
 
     pub fn is_empty(&self) -> bool {
-        self.syspath.is_none() &&
-        self.devpath.is_none() &&
-        self.sysname.is_none() &&
-        self.sysnum.is_none() &&
-        self.DEVPATH.is_none() &&
-        self.ID_FOR_SEAT.is_none() &&
-        self.ID_PATH.is_none() &&
-        self.ID_PATH_TAG.is_none()
+        self.syspath.is_none()
+            && self.devpath.is_none()
+            && self.sysname.is_none()
+            && self.sysnum.is_none()
+            && self.DEVPATH.is_none()
+            && self.ID_FOR_SEAT.is_none()
+            && self.ID_PATH.is_none()
+            && self.ID_PATH_TAG.is_none()
     }
 }
 
@@ -58,10 +57,18 @@ impl<'a> From<&'a tokio_udev::Device> for UsbPort {
             devpath: Some(d.devpath().to_string_lossy().to_string()),
             sysname: Some(d.sysname().to_string_lossy().to_string()),
             sysnum: d.sysnum(),
-            DEVPATH: d.property_value("DEVPATH").map(|v| v.to_string_lossy().to_string()),
-            ID_FOR_SEAT: d.property_value("ID_FOR_SEAT").map(|v| v.to_string_lossy().to_string()),
-            ID_PATH: d.property_value("ID_PATH").map(|v| v.to_string_lossy().to_string()),
-            ID_PATH_TAG: d.property_value("ID_PATH_TAG").map(|v| v.to_string_lossy().to_string()),
+            DEVPATH: d
+                .property_value("DEVPATH")
+                .map(|v| v.to_string_lossy().to_string()),
+            ID_FOR_SEAT: d
+                .property_value("ID_FOR_SEAT")
+                .map(|v| v.to_string_lossy().to_string()),
+            ID_PATH: d
+                .property_value("ID_PATH")
+                .map(|v| v.to_string_lossy().to_string()),
+            ID_PATH_TAG: d
+                .property_value("ID_PATH_TAG")
+                .map(|v| v.to_string_lossy().to_string()),
             ..Default::default()
         }
     }

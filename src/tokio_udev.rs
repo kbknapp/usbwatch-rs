@@ -1,17 +1,9 @@
-use std::fmt::{self};
+use std::fmt;
 
-use tokio_udev::{self, Device, Property, Attribute};
+use tokio_udev::{self, Attribute, Device, Property};
 
 pub struct DebugDevice {
     dev: Device,
-}
-
-impl DebugDevice {
-    pub fn new(dev: Device) -> Self {
-        Self {
-            dev
-        }
-    }
 }
 
 impl fmt::Debug for DebugDevice {
@@ -27,8 +19,22 @@ impl fmt::Debug for DebugDevice {
             .field("sysnum", &self.dev.sysnum())
             .field("devtype", &self.dev.devtype())
             .field("driver", &self.dev.driver())
-            .field("properties", &self.dev.properties().map(|p| DebugProperty::new(p)).collect::<Vec<_>>())
-            .field("attributes", &self.dev.attributes().map(|a| DebugAttribute::new(a)).collect::<Vec<_>>())
+            .field(
+                "properties",
+                &self
+                    .dev
+                    .properties()
+                    .map(|p| DebugProperty::new(p))
+                    .collect::<Vec<_>>(),
+            )
+            .field(
+                "attributes",
+                &self
+                    .dev
+                    .attributes()
+                    .map(|a| DebugAttribute::new(a))
+                    .collect::<Vec<_>>(),
+            )
             .finish()
     }
 }
@@ -42,7 +48,7 @@ impl DebugProperty {
     pub fn new(prop: Property<'_>) -> Self {
         Self {
             name: prop.name().to_string_lossy().to_string(),
-            value: prop.value().to_string_lossy().to_string()
+            value: prop.value().to_string_lossy().to_string(),
         }
     }
 }
@@ -64,7 +70,7 @@ impl DebugAttribute {
     pub fn new(attr: Attribute<'_>) -> Self {
         Self {
             name: attr.name().to_string_lossy().to_string(),
-            value: attr.value().map(|v| v.to_string_lossy().to_string())
+            value: attr.value().map(|v| v.to_string_lossy().to_string()),
         }
     }
 }

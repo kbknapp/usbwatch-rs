@@ -1,7 +1,5 @@
 use std::sync::{Arc};
-use std::{ffi::OsStr};
-use std::future::Future;
-use std::{path::PathBuf, ffi::OsString, fmt::{self, Debug}};
+use std::path::PathBuf;
 use std::io::{self, Write};
 use std::os::unix::fs::PermissionsExt;
 use std::process::Stdio;
@@ -10,7 +8,6 @@ use tracing::{self, debug, warn, error, info, trace, instrument};
 use tokio::fs::File;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::process::Command;
-use tempfile::NamedTempFile;
 use parking_lot::Mutex;
 use tokio::sync::{broadcast, mpsc};
 use tokio::signal::unix::{signal, SignalKind};

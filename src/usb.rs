@@ -3,8 +3,8 @@ mod port;
 
 use std::str::FromStr;
 
-use serde::{Serialize, Deserialize, ser::Serializer};
 use clap::Clap;
+use serde::{ser::Serializer, Deserialize, Serialize};
 use tokio_udev::EventType;
 
 pub use device::{UsbDevice, UsbDevices};
@@ -30,7 +30,7 @@ impl From<tokio_udev::EventType> for UsbEvent {
             EventType::Unknown => UsbEvent::Unknown,
             EventType::Bind => UsbEvent::Bind,
             EventType::Unbind => UsbEvent::Unbind,
-            _ => panic!("Unsupported event type") // @TODO maybe dont panic
+            _ => panic!("Unsupported event type"), // @TODO maybe dont panic
         }
     }
 }
@@ -48,7 +48,10 @@ impl FromStr for UsbEvent {
     }
 }
 
-fn empty_if_none<S>(field: &Option<String>, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+fn empty_if_none<S>(field: &Option<String>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
     if let Some(s) = field {
         serializer.serialize_str(s)
     } else {

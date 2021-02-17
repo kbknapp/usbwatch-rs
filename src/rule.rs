@@ -1,16 +1,11 @@
 mod r#match;
 
-use std::{path::PathBuf, ffi::OsString, fmt::{self, Debug}};
-use std::io::{self, Write};
+use std::{fmt::Debug, path::PathBuf};
 
-use tokio::fs::File;
-use tokio::io::AsyncWriteExt;
-use tokio::process::Command;
-use tempfile::NamedTempFile;
-use serde::{Serialize};
+use serde::Serialize;
 use yaml_rust::Yaml;
 
-use crate::{udev::{UdevEvent}};
+use crate::udev::UdevEvent;
 
 use r#match::Match;
 
@@ -28,9 +23,7 @@ impl<'a> From<&'a Yaml> for Rules {
             }
         }
 
-        Self {
-            rules,
-        }
+        Self { rules }
     }
 }
 
@@ -39,14 +32,13 @@ pub struct Rule {
     pub name: String,
     r#match: Match,
     pub command_shell: PathBuf,
-    pub command: String
+    pub command: String,
 }
 
 impl Rule {
     pub fn matches_udev_event(&self, event: &UdevEvent) -> bool {
         self.r#match.matches_udev_event(event)
     }
-
 }
 
 impl<'a> From<&'a Yaml> for Rule {
@@ -81,7 +73,7 @@ impl<'a> From<&'a Yaml> for Rule {
             name,
             r#match: m,
             command_shell,
-            command
+            command,
         }
     }
 }

@@ -1,10 +1,6 @@
-use std::{
-    ffi::OsString,
-    fmt::{self, Debug},
-    fs::File,
-};
+use std::{fmt::Debug, fs::File};
 
-use serde::{de::Deserializer, Deserialize, Serialize};
+use serde::Serialize;
 use yaml_rust::Yaml;
 
 use crate::{

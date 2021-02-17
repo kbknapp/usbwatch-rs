@@ -1,15 +1,11 @@
-use std::sync::{Arc};
-use std::{ffi::OsStr};
-use std::future::Future;
+use std::ffi::OsStr;
 
-use parking_lot::Mutex;
 use tokio::sync::{broadcast, mpsc};
-use tokio::signal::unix::{signal, SignalKind};
 use tokio_stream::StreamExt;
+use tokio_udev::{self, EventType};
 use tracing::{debug, error, info, instrument};
-use tokio_udev::{self, Device, EventType, Event};
 
-use crate::{tokio_udev::DebugDevice, udev::UdevEvent, shutdown::Shutdown};
+use crate::{shutdown::Shutdown, udev::UdevEvent};
 
 /// Udev listener state
 #[derive(Debug)]
@@ -22,21 +18,21 @@ pub struct UdevListener {
 
 impl UdevListener {
     pub async fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-
         let mon = tokio_udev::MonitorBuilder::new().unwrap();
-        let mut event_iter = mon.match_subsystem("usb")
-                            .unwrap()
-                            .listen()
-                            .unwrap()
-                            .filter(|e| e.is_ok())
-                            .filter(|e| {
-                                let et = e.as_ref().unwrap().event_type();
-                                et == EventType::Add || et == EventType::Remove
-                            })
-                            .filter(|e| {
-                                let d = e.as_ref().unwrap().device();
-                                Some(OsStr::new("usb_interface")) != d.devtype()
-                            });
+        let mut event_iter = mon
+            .match_subsystem("usb")
+            .unwrap()
+            .listen()
+            .unwrap()
+            .filter(|e| e.is_ok())
+            .filter(|e| {
+                let et = e.as_ref().unwrap().event_type();
+                et == EventType::Add || et == EventType::Remove
+            })
+            .filter(|e| {
+                let d = e.as_ref().unwrap().device();
+                Some(OsStr::new("usb_interface")) != d.devtype()
+            });
 
         while !self.shutdown.is_shutdown() {
             let event = tokio::select! {
