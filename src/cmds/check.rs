@@ -4,8 +4,7 @@ use serde_yaml;
 use yaml_rust::YamlLoader;
 
 use crate::{
-    port::{Port, Ports},
-    device::{Device, Devices},
+    usb::{UsbDevice, UsbDevices, UsbPort, UsbPorts},
     cli::CheckArgs,
     rule::{Rule, Rules},
 
@@ -14,13 +13,13 @@ use crate::{
 pub fn run(a: CheckArgs) {
     if let Some(path) = a.devices {
         let file = File::open(path).unwrap();
-        let devices: Devices = serde_yaml::from_reader(file).unwrap();
+        let devices: UsbDevices = serde_yaml::from_reader(file).unwrap();
         println!("{:#?}", devices);
     }
 
     if let Some(path) = a.ports {
         let file = File::open(path).unwrap();
-        let ports: Ports = serde_yaml::from_reader(file).unwrap();
+        let ports: UsbPorts = serde_yaml::from_reader(file).unwrap();
         println!("{:#?}", ports);
     }
 

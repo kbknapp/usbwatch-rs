@@ -6,12 +6,11 @@ use clap::*;
 mod macros;
 mod cli;
 mod cmds;
-mod device;
 mod listener;
-mod port;
 mod rule;
 mod tokio_udev;
-mod usb_event;
+mod udev;
+mod usb;
 mod shutdown;
 
 pub fn main() {

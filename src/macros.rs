@@ -5,3 +5,15 @@ macro_rules! yaml_str {
         }
     };
 }
+
+macro_rules! cmp_ignore_none {
+    ($_self:ident, $other:ident, $field:ident) => {
+        if let Some(ref self_field) = $_self.$field {
+            if let Some(ref other_field) = $other.$field {
+                if self_field != other_field {
+                    return false;
+                }
+            }
+        }
+    }
+}

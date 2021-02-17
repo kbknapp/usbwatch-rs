@@ -3,17 +3,20 @@ use std::{fs::File, ffi::OsString, fmt::{self, Debug}};
 use serde::{Deserialize, Serialize, de::Deserializer};
 use yaml_rust::Yaml;
 
-use crate::{port::{Port, Ports}, device::{Device, Devices}, cli::ListenForEvents};
+use crate::{
+    udev::UdevEvent,
+    usb::{UsbDevice, UsbDevices, UsbEvent, UsbPort, UsbPorts},
+};
 
 #[derive(Serialize, PartialEq, Debug)]
 pub struct Match {
-    on: ListenForEvents,
-    devices: Vec<Device>,
-    ports: Vec<Port>,
+    on: UsbEvent,
+    devices: Vec<UsbDevice>,
+    ports: Vec<UsbPort>,
 }
 
 impl Match {
-    fn new(event: ListenForEvents)  -> Self {
+    fn new(event: UsbEvent) -> Self {
         Self {
             on: event,
             devices: Vec::new(),
@@ -34,12 +37,12 @@ impl<'a> From<&'a Yaml> for Match {
             for d in devices {
                 if let Some(path) = d["include_devices"].as_str() {
                     let file = File::open(path).unwrap();
-                    let mut devs: Devices = serde_yaml::from_reader(file).unwrap();
+                    let mut devs: UsbDevices = serde_yaml::from_reader(file).unwrap();
                     m.devices.append(&mut devs.devices);
                 } else if d["name"].as_str().is_some() {
-                    m.devices.push(Device::from(d));
+                    m.devices.push(UsbDevice::from(d));
                 } else if let Some(name) = d.as_str() {
-                    m.devices.push(Device::new(name));
+                    m.devices.push(UsbDevice::new(name));
                     // @TODO: will need to handle lookup of name / merge
                 } else {
                     todo!("Handle deserialize devices with bad key")
@@ -51,12 +54,12 @@ impl<'a> From<&'a Yaml> for Match {
             for p in ports {
                 if let Some(path) = p["include_ports"].as_str() {
                     let file = File::open(path).unwrap();
-                    let mut ports: Ports = serde_yaml::from_reader(file).unwrap();
+                    let mut ports: UsbPorts = serde_yaml::from_reader(file).unwrap();
                     m.ports.append(&mut ports.ports);
                 } else if p["name"].as_str().is_some() {
-                    m.ports.push(Port::from(p));
+                    m.ports.push(UsbPort::from(p));
                 } else if let Some(name) = p.as_str() {
-                    m.ports.push(Port::new(name));
+                    m.ports.push(UsbPort::new(name));
                     // @TODO: will need to handle lookup of name / merge
                 } else {
                     todo!("Handle deserialize ports with bad key")

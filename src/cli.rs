@@ -3,7 +3,7 @@ use std::{str::FromStr, path::PathBuf};
 use clap::Clap;
 use serde::{Serialize, Deserialize};
 
-use crate::usb_event::UsbEvent;
+use crate::usb::UsbEvent;
 
 /// Monitor USB events and execute actions
 #[derive(Clap)]
@@ -55,8 +55,8 @@ pub struct ListenArgs {
     #[clap(long, short, arg_enum, value_name = "KIND", default_value="All")]
     pub object: ListenForObject,
     /// Only display KIND of events
-    #[clap(long, short, value_name = "KIND", default_value="all", parse(try_from_str), possible_values = &["add", "remove", "all"])]
-    pub events: ListenForEvents,
+    #[clap(long, short, arg_enum, value_name = "KIND", default_value="all")]
+    pub events: UsbEvent,
     /// Display output in format
     #[clap(long, short, arg_enum, value_name = "FORMAT", default_value="Raw")]
     pub format: ListenFormat,
@@ -69,28 +69,6 @@ pub enum ListenForObject {
     All
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub enum ListenForEvents {
-    Add,
-    Remove,
-    All
-}
-
-impl FromStr for ListenForEvents {
-    type Err = &'static str;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match &*s.to_ascii_lowercase() {
-            "add"|"connect" => Ok(ListenForEvents::Add),
-            "remove"|"disconnect" => Ok(ListenForEvents::Remove),
-            "all" => Ok(ListenForEvents::All),
-            _ => Err("Invalid event type"),
-        }
-    }
-}
-
-#[derive(Clap)]
-pub enum ListenFormat {
     Raw,
     Yaml,
 }
