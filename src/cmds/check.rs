@@ -2,6 +2,7 @@ use std::{fs::{self, File}};
 
 use serde_yaml;
 use yaml_rust::YamlLoader;
+use tracing::{self, debug, warn, error, info, trace, instrument};
 
 use crate::{
     usb::{UsbDevice, UsbDevices, UsbPort, UsbPorts},
@@ -10,7 +11,10 @@ use crate::{
 
 };
 
+#[tracing::instrument]
 pub fn run(a: CheckArgs) {
+    warn!("Not fully implemented");
+
     if let Some(path) = a.devices {
         let file = File::open(path).unwrap();
         let devices: UsbDevices = serde_yaml::from_reader(file).unwrap();

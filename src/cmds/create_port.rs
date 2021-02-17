@@ -1,3 +1,8 @@
+use tracing::{self, debug, warn, error, info, trace, instrument};
+
 use crate::cli::CreatePortArgs;
 
-pub fn run(_cda: CreatePortArgs) {}
+#[tracing::instrument]
+pub fn run(_cda: CreatePortArgs) {
+    warn!("Not yet implemented");
+}
