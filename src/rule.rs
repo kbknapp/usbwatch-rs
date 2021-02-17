@@ -1,15 +1,22 @@
 mod r#match;
 
 use std::{path::PathBuf, ffi::OsString, fmt::{self, Debug}};
+use std::io::{self, Write};
 
+use tokio::fs::File;
+use tokio::io::AsyncWriteExt;
+use tokio::process::Command;
+use tempfile::NamedTempFile;
 use serde::{Serialize};
 use yaml_rust::Yaml;
+
+use crate::{udev::{UdevEvent}};
 
 use r#match::Match;
 
 #[derive(Serialize, Debug, PartialEq)]
 pub struct Rules {
-    rules: Vec<Rule>,
+    pub rules: Vec<Rule>,
 }
 
 impl<'a> From<&'a Yaml> for Rules {
@@ -29,10 +36,17 @@ impl<'a> From<&'a Yaml> for Rules {
 
 #[derive(Serialize, PartialEq, Debug)]
 pub struct Rule {
-    name: String,
+    pub name: String,
     r#match: Match,
-    command_shell: PathBuf,
-    command: String
+    pub command_shell: PathBuf,
+    pub command: String
+}
+
+impl Rule {
+    pub fn matches_udev_event(&self, event: &UdevEvent) -> bool {
+        self.r#match.matches_udev_event(event)
+    }
+
 }
 
 impl<'a> From<&'a Yaml> for Rule {
