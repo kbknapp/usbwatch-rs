@@ -1,6 +1,10 @@
-use std::{fs::File, ffi::OsString, fmt::{self, Debug}};
+use std::{
+    ffi::OsString,
+    fmt::{self, Debug},
+    fs::File,
+};
 
-use serde::{Deserialize, Serialize, de::Deserializer};
+use serde::{de::Deserializer, Deserialize, Serialize};
 use yaml_rust::Yaml;
 
 use crate::{
@@ -22,6 +26,24 @@ impl Match {
             devices: Vec::new(),
             ports: Vec::new(),
         }
+    }
+
+    pub fn matches_port(&self, port: &UsbPort) -> bool {
+        self.ports.is_empty() || self.ports.contains(port)
+    }
+
+    pub fn matches_device(&self, device: &UsbDevice) -> bool {
+        self.devices.is_empty() || self.devices.contains(device)
+    }
+
+    pub fn matches_usb_event(&self, event: &UsbEvent) -> bool {
+        &self.on == event
+    }
+
+    pub fn matches_udev_event(&self, event: &UdevEvent) -> bool {
+        self.matches_usb_event(&event.event_kind)
+            && self.matches_port(&event.port)
+            && self.matches_device(&event.device)
     }
 }
 
