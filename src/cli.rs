@@ -38,52 +38,57 @@ pub enum UsbWatchSubCmd {
     Check(CheckArgs),
 }
 
-#[derive(Clap)] pub struct CreateDeviceArgs {}
+#[derive(Clap, Debug)] pub struct CreateDeviceArgs {}
 
-#[derive(Clap)] pub struct CreatePortArgs {}
+#[derive(Clap, Debug)] pub struct CreatePortArgs {}
 
-#[derive(Clap)]
+#[derive(Clap, Debug)]
 pub struct CreateRuleArgs {
     /// USB Event activate the rule
     #[clap(long, short, arg_enum, default_value="All")]
     pub on: UsbEvent,
 }
 
-#[derive(Clap)]
+#[derive(Clap, Copy, Clone, Debug)]
 pub struct ListenArgs {
     /// Only display KIND of objects
-    #[clap(long, short, arg_enum, value_name = "KIND", default_value="All")]
+    #[clap(long, short, arg_enum, value_name = "KIND", default_value="all")]
     pub object: ListenForObject,
     /// Only display KIND of events
     #[clap(long, short, arg_enum, value_name = "KIND", default_value="all")]
     pub events: UsbEvent,
     /// Display output in format
-    #[clap(long, short, arg_enum, value_name = "FORMAT", default_value="Raw")]
-    pub format: ListenFormat,
+    #[clap(long, short, arg_enum, value_name = "FORMAT", default_value="raw")]
+    pub format: OutFormat,
 }
 
-#[derive(Clap)]
+#[derive(Clap, Copy, Clone, Debug, PartialEq)]
 pub enum ListenForObject {
     Ports,
     Devices,
     All
 }
 
+#[derive(Clap, Copy, Clone, Debug, PartialEq)]
+pub enum OutFormat {
     Raw,
     Yaml,
 }
 
-#[derive(Clap)]
+#[derive(Clap, Debug)]
 pub struct RunArgs {
-    /// Run in the background as a daemon
-    #[clap(long, short)]
-    pub daemon: bool,
     /// Rules file to use
     #[clap(long, short)]
     pub rules: PathBuf,
+    /// Devices to match against
+    #[clap(long, short)]
+    pub devices: Option<PathBuf>,
+    /// Ports to match against
+    #[clap(long, short)]
+    pub ports:  Option<PathBuf>,
 }
 
-#[derive(Clap)]
+#[derive(Clap, Debug)]
 pub struct CheckArgs {
     /// Rules file to use
     #[clap(long, short)]
