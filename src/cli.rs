@@ -6,6 +6,7 @@ use crate::usb::UsbEvent;
 
 /// Monitor USB events and execute actions
 #[derive(Clap)]
+#[clap(version = env!("VERSION_WITH_GIT_HASH"))]
 pub struct UsbWatchArgs {
     /// Show verbose output
     #[clap(long, short)]

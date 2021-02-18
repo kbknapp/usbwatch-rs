@@ -33,3 +33,6 @@ tracing = "0.1.23"
 tracing-subscriber = { version = "0.2.15", features = ["fmt"] }
 udev = "0.6.0"
 yaml-rust = "0.4.5"
+
+[build-dependencies]
+clap = "3.0.0-beta.2"
