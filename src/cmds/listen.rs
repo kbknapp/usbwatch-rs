@@ -1,5 +1,5 @@
 
-use tracing::{self, debug, warn, error, info, trace, instrument};
+use tracing::{self, debug, error, info, trace};
 use tokio::sync::{broadcast, mpsc};
 use tokio::signal::unix::{signal, SignalKind};
 
@@ -96,8 +96,8 @@ pub fn run(a: ListenArgs) {
 
                 let mut handler = Handler {
                     notify_shutdown,
-                    shutdown_complete_tx: shutdown_complete_tx,
-                    shutdown_complete_rx: shutdown_complete_rx,
+                    shutdown_complete_tx,
+                    shutdown_complete_rx,
                     udev_event_rx,
                     args: a,
                 };

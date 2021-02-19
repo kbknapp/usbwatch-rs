@@ -3,7 +3,7 @@ use std::ffi::OsStr;
 use tokio::sync::{broadcast, mpsc};
 use tokio_stream::StreamExt;
 use tokio_udev::{self, EventType};
-use tracing::{debug, error, info, instrument};
+use tracing::error;
 
 use crate::{shutdown::Shutdown, udev::UdevEvent};
 

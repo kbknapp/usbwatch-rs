@@ -9,16 +9,6 @@ pub struct UdevEvent {
     pub port: UsbPort,
 }
 
-impl UdevEvent {
-    pub fn new(event_kind: UsbEvent) -> Self {
-        Self {
-            event_kind,
-            device: UsbDevice::default(),
-            port: UsbPort::default(),
-        }
-    }
-}
-
 impl From<tokio_udev::Event> for UdevEvent {
     fn from(e: tokio_udev::Event) -> Self {
         let d = e.device();

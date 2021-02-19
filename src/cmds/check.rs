@@ -1,7 +1,6 @@
 use std::fs::{self, File};
 
-use serde_yaml;
-use tracing::{self, debug, error, info, instrument, trace, warn};
+use tracing::{self, warn};
 use yaml_rust::YamlLoader;
 
 use crate::{

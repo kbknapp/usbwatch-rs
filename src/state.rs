@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fs::{self, File};
 use std::path::Path;
 
-use tracing::{self, debug, error, info, instrument, trace, warn};
+use tracing::{self, debug, info, trace};
 use yaml_rust::YamlLoader;
 
 use crate::{

@@ -1,27 +1,17 @@
-use std::sync::{Arc};
 use std::path::PathBuf;
-use std::io::{self, Write};
-use std::os::unix::fs::PermissionsExt;
 use std::process::Stdio;
+use std::sync::Arc;
 
-use tracing::{self, debug, warn, error, info, trace, instrument};
-use tokio::fs::File;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tokio::process::Command;
 use parking_lot::Mutex;
-use tokio::sync::{broadcast, mpsc};
+use tokio::io::AsyncWriteExt;
+use tokio::process::Command;
 use tokio::signal::unix::{signal, SignalKind};
-use tokio_stream::StreamExt;
-use tokio_udev::{self, EventType};
+use tokio::sync::{broadcast, mpsc};
+use tracing::{self, debug, error, info, trace};
 
 use crate::{
-    cli::{RunArgs},
-    listener::{UdevListener },
-    tokio_udev::DebugDevice,
-    shutdown::Shutdown,
-    udev::UdevEvent,
-    state::State,
-    usb::UsbEvent,
+    cli::RunArgs, listener::UdevListener, shutdown::Shutdown, state::State,
+    udev::UdevEvent, usb::UsbEvent,
 };
 
 struct Handler {
@@ -31,7 +21,6 @@ struct Handler {
     udev_event_rx: broadcast::Receiver<UdevEvent>,
     state: Arc<Mutex<State>>,
 }
-
 
 async fn exec(cmd: String, shell: PathBuf) -> Result<(), ()> {
     trace!("Inside exec");
@@ -45,7 +34,10 @@ async fn exec(cmd: String, shell: PathBuf) -> Result<(), ()> {
 
     {
         let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-        stdin.write_all(cmd.as_bytes()).await.expect("Failed to write to stdin");
+        stdin
+            .write_all(cmd.as_bytes())
+            .await
+            .expect("Failed to write to stdin");
     }
 
     info!("Executing command");
@@ -54,7 +46,10 @@ async fn exec(cmd: String, shell: PathBuf) -> Result<(), ()> {
     if status.success() {
         info!("Command completed successfully");
     } else {
-        info!("Command completed with error code {:?}", code = status.code());
+        info!(
+            "Command completed with error code {:?}",
+            code = status.code()
+        );
     }
     Ok(())
 }
@@ -119,7 +114,6 @@ pub fn run(a: RunArgs) {
             let state = Arc::new(Mutex::new(State::new()));
 
             loop {
-
                 let (udev_event_tx, udev_event_rx) = broadcast::channel(32); // 32 picked by fair diceroll
                 let state = state.clone();
                 {
@@ -128,7 +122,7 @@ pub fn run(a: RunArgs) {
                         info!("Loading devices from {:?}", p);
                         s.devices_from_file(p);
                     }
-                    if let Some(ref p) = a.ports{
+                    if let Some(ref p) = a.ports {
                         info!("Loading ports from {:?}", p);
                         s.ports_from_file(p);
                     }
@@ -137,7 +131,7 @@ pub fn run(a: RunArgs) {
                 }
 
                 let (notify_shutdown, _) = broadcast::channel(1);
-                let (shutdown_complete_tx, mut shutdown_complete_rx) = mpsc::channel(1);
+                let (shutdown_complete_tx, shutdown_complete_rx) = mpsc::channel(1);
 
                 let mut listener = UdevListener {
                     shutdown: Shutdown::new(notify_shutdown.subscribe()),
@@ -147,8 +141,8 @@ pub fn run(a: RunArgs) {
 
                 let mut handler = Handler {
                     notify_shutdown,
-                    shutdown_complete_tx: shutdown_complete_tx,
-                    shutdown_complete_rx: shutdown_complete_rx,
+                    shutdown_complete_tx,
+                    shutdown_complete_rx,
                     udev_event_rx,
                     state: state.clone(),
                 };
@@ -179,7 +173,7 @@ pub fn run(a: RunArgs) {
                     shutdown_complete_tx,
                     notify_shutdown,
                     ..
-                } = handler ;
+                } = handler;
 
                 drop(notify_shutdown);
                 drop(shutdown_complete_tx);
@@ -194,7 +188,6 @@ pub fn run(a: RunArgs) {
                 drop(shutdown_complete_tx);
 
                 let _ = shutdown_complete_rx.recv().await;
-
             }
         });
 }

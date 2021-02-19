@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
+#![warn(rust_2018_idioms, future_incompatible)]
 
-#[macro_use]
-extern crate bitflags;
 use clap::*;
 
 #[macro_use]
@@ -10,14 +9,13 @@ mod cli;
 mod cmds;
 mod listener;
 mod rule;
+mod shutdown;
 mod state;
 mod tokio_udev;
 mod udev;
 mod usb;
-mod shutdown;
 
-use tracing_subscriber;
-use tracing::{debug, error, info, instrument};
+use tracing::info;
 
 pub fn main() {
     tracing_subscriber::fmt::init();

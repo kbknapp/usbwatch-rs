@@ -24,7 +24,7 @@ impl fmt::Debug for DebugDevice {
                 &self
                     .dev
                     .properties()
-                    .map(|p| DebugProperty::new(p))
+                    .map(DebugProperty::new)
                     .collect::<Vec<_>>(),
             )
             .field(
@@ -32,7 +32,7 @@ impl fmt::Debug for DebugDevice {
                 &self
                     .dev
                     .attributes()
-                    .map(|a| DebugAttribute::new(a))
+                    .map(DebugAttribute::new)
                     .collect::<Vec<_>>(),
             )
             .finish()

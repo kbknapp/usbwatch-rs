@@ -30,7 +30,6 @@ impl From<tokio_udev::EventType> for UsbEvent {
             EventType::Unknown => UsbEvent::Unknown,
             EventType::Bind => UsbEvent::Bind,
             EventType::Unbind => UsbEvent::Unbind,
-            _ => panic!("Unsupported event type"), // @TODO maybe dont panic
         }
     }
 }
