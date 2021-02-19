@@ -15,5 +15,5 @@ macro_rules! cmp_ignore_none {
                 }
             }
         }
-    }
+    };
 }

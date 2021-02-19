@@ -1,4 +1,4 @@
-use tracing::{self, debug, warn, error, info, trace, instrument};
+use tracing::{self, debug, error, info, instrument, trace, warn};
 
 use crate::cli::CreatePortArgs;
 

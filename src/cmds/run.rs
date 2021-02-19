@@ -10,8 +10,8 @@ use tokio::sync::{broadcast, mpsc};
 use tracing::{self, debug, error, info, trace};
 
 use crate::{
-    cli::RunArgs, listener::UdevListener, shutdown::Shutdown, state::State,
-    udev::UdevEvent, usb::UsbEvent,
+    cli::RunArgs, listener::UdevListener, shutdown::Shutdown, state::State, udev::UdevEvent,
+    usb::UsbEvent,
 };
 
 struct Handler {

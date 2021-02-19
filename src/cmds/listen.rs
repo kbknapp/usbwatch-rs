@@ -1,10 +1,9 @@
-
-use tracing::{self, debug, error, info, trace};
-use tokio::sync::{broadcast, mpsc};
 use tokio::signal::unix::{signal, SignalKind};
+use tokio::sync::{broadcast, mpsc};
+use tracing::{self, debug, error, info, trace};
 
 use crate::{
-    cli::{OutFormat, ListenArgs, ListenForObject},
+    cli::{ListenArgs, ListenForObject, OutFormat},
     listener::UdevListener,
     shutdown::Shutdown,
     udev::UdevEvent,
@@ -52,24 +51,31 @@ impl Handler {
 
         match self.args.format {
             Raw => {
-                if self.args.object == ListenForObject::Ports || self.args.object ==  ListenForObject::All {
+                if self.args.object == ListenForObject::Ports
+                    || self.args.object == ListenForObject::All
+                {
                     println!("{:#?}", udev_dev.port);
                 }
-                if self.args.object == ListenForObject::Devices || self.args.object ==  ListenForObject::All {
+                if self.args.object == ListenForObject::Devices
+                    || self.args.object == ListenForObject::All
+                {
                     println!("{:#?}", udev_dev.device);
                 }
-            },
-            Yaml =>{
-                if self.args.object == ListenForObject::Ports || self.args.object ==  ListenForObject::All {
+            }
+            Yaml => {
+                if self.args.object == ListenForObject::Ports
+                    || self.args.object == ListenForObject::All
+                {
                     println!("{}", serde_yaml::to_string(&udev_dev.port).unwrap());
                 }
-                if self.args.object == ListenForObject::Devices || self.args.object ==  ListenForObject::All {
+                if self.args.object == ListenForObject::Devices
+                    || self.args.object == ListenForObject::All
+                {
                     println!("{}", serde_yaml::to_string(&udev_dev.device).unwrap());
                 }
-            },
+            }
         }
     }
-
 }
 
 #[tracing::instrument]
@@ -129,7 +135,7 @@ pub fn run(a: ListenArgs) {
                     shutdown_complete_tx,
                     notify_shutdown,
                     ..
-                } = handler ;
+                } = handler;
 
                 drop(notify_shutdown);
                 drop(shutdown_complete_tx);
