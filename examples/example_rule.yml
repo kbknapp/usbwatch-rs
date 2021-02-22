@@ -16,6 +16,12 @@ rules:
       devices:
         # Can use "name" field of loaded device files
         - "Sandisk Cruzer"
+        # Starting a "string" device with a "!" means ignore this device
+        # when matching.
+        #
+        # When using "!some name", the device details of "some name" must be
+        # loaded in this devices array either inline, or via include_devices:
+        - "!My other Cruzer"
         # Can include device files
         - include_devices: "examples/example_device.yml"
         # Can be included inline

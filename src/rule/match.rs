@@ -14,6 +14,7 @@ pub struct Match {
     on: UsbEvent,
     devices: Vec<UsbDevice>,
     ports: Vec<UsbPort>,
+    ignore_devices: Vec<usize>,
 }
 
 impl Match {
@@ -22,7 +23,22 @@ impl Match {
             on: event,
             devices: Vec::new(),
             ports: Vec::new(),
+            ignore_devices: Vec::new(),
         }
+    }
+
+    pub fn device_ignored(&self, device: &UsbDevice) -> bool {
+        trace!(device = ?device, "Inside Match::device_ignored");
+        if self.devices.is_empty() { return false; }
+
+        for (i, dev) in self.devices.iter().enumerate() {
+            if dev == device {
+                debug!(ignored = ?self.ignore_devices.contains(&i), "Found device");
+                return self.ignore_devices.contains(&i);
+            }
+        }
+
+        false
     }
 
     pub fn matches_port(&self, port: &UsbPort) -> bool {
@@ -61,6 +77,7 @@ impl<'a> From<&'a Yaml> for Match {
 
         if let Some(devices) = yaml["devices"].as_vec() {
             trace!("Loading devices: array");
+            let mut to_ignore: Vec<String> = Vec::new();
             for d in devices {
                 if let Some(path) = d["include_devices"].as_str() {
                     debug!(path = ?path, "Including devices from path");
@@ -72,10 +89,28 @@ impl<'a> From<&'a Yaml> for Match {
                     debug!(name = ?d, "Including device inline");
                     m.devices.push(UsbDevice::from(d));
                 } else if let Some(name) = d.as_str() {
-                    m.devices.push(UsbDevice::new(name));
-                    // @TODO: will need to handle lookup of name / merge
+                    debug!(name = ?d, "Including device by name");
+                    if name.starts_with('!') {
+                        debug!("Device is to be ignored");
+                        to_ignore.push(name.to_string());
+                    } else {
+                        m.devices.push(UsbDevice::new(name));
+                    }
                 } else {
                     todo!("Handle deserialize devices with bad key")
+                }
+            }
+            for ignore_dev in to_ignore.into_iter() {
+                if let Some(ignore_dev) =  ignore_dev.strip_prefix('!') {
+                    trace!(ignored_dev = %ignore_dev, "Ignoring device");
+                    for (i, d) in m.devices.iter().enumerate() {
+                        if let Some(name) = d.name.as_ref() {
+                            if name == ignore_dev {
+                                m.ignore_devices.push(i);
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }
