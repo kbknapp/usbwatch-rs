@@ -51,25 +51,25 @@ impl Handler {
 
         match self.args.format {
             Raw => {
-                if self.args.object == ListenForObject::Ports
-                    || self.args.object == ListenForObject::All
+                if self.args.listen_for == ListenForObject::Ports
+                    || self.args.listen_for == ListenForObject::All
                 {
                     println!("{:#?}", udev_dev.port);
                 }
-                if self.args.object == ListenForObject::Devices
-                    || self.args.object == ListenForObject::All
+                if self.args.listen_for == ListenForObject::Devices
+                    || self.args.listen_for == ListenForObject::All
                 {
                     println!("{:#?}", udev_dev.device);
                 }
             }
             Yaml => {
-                if self.args.object == ListenForObject::Ports
-                    || self.args.object == ListenForObject::All
+                if self.args.listen_for == ListenForObject::Ports
+                    || self.args.listen_for == ListenForObject::All
                 {
                     println!("{}", serde_yaml::to_string(&udev_dev.port).unwrap());
                 }
-                if self.args.object == ListenForObject::Devices
-                    || self.args.object == ListenForObject::All
+                if self.args.listen_for == ListenForObject::Devices
+                    || self.args.listen_for == ListenForObject::All
                 {
                     println!("{}", serde_yaml::to_string(&udev_dev.device).unwrap());
                 }

@@ -55,7 +55,7 @@ pub struct CreateRuleArgs {
 pub struct ListenArgs {
     /// Only display KIND of objects
     #[clap(long, short, arg_enum, value_name = "KIND", default_value = "all")]
-    pub object: ListenForObject,
+    pub listen_for: ListenForObject,
     /// Only display KIND of events
     #[clap(long, short, arg_enum, value_name = "KIND", default_value = "all")]
     pub events: UsbEvent,
