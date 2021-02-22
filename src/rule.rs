@@ -2,6 +2,7 @@ mod r#match;
 
 use std::{fmt::Debug, path::PathBuf};
 
+use tracing::{self, debug, error, info, trace};
 use serde::Serialize;
 use yaml_rust::Yaml;
 
@@ -43,7 +44,9 @@ impl Rule {
 
 impl<'a> From<&'a Yaml> for Rule {
     fn from(yaml: &'a Yaml) -> Self {
+        trace!("Inside Rule::from::<Yaml>");
         let name: String = if let Some(name) = yaml["name"].as_str() {
+            debug!(name = %name, "Building Rule");
             name.into()
         } else {
             todo!("Handle Rule::from<Yaml> with no name key")

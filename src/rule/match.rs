@@ -2,6 +2,7 @@ use std::{fmt::Debug, fs::File};
 
 use serde::Serialize;
 use yaml_rust::Yaml;
+use tracing::{self, debug, error, info, trace};
 
 use crate::{
     udev::UdevEvent,
@@ -25,14 +26,20 @@ impl Match {
     }
 
     pub fn matches_port(&self, port: &UsbPort) -> bool {
+        trace!(port = ?port, "Inside Match::matches_port");
+        trace!(ret = ?(self.ports.is_empty() || self.ports.contains(port)), "Returning");
         self.ports.is_empty() || self.ports.contains(port)
     }
 
     pub fn matches_device(&self, device: &UsbDevice) -> bool {
-        self.devices.is_empty() || self.devices.contains(device)
+        trace!(device = ?device, "Inside Match::matches_device");
+        trace!(ret = ?(self.devices.is_empty() || (self.devices.contains(device) && ! self.device_ignored(device))), "Returning");
+        self.devices.is_empty() || (self.devices.contains(device) && ! self.device_ignored(device))
     }
 
     pub fn matches_usb_event(&self, event: &UsbEvent) -> bool {
+        trace!(event = ?event, "Inside Match::matches_usb_event");
+        trace!(ret = ?(&self.on == event), "Returning");
         &self.on == event
     }
 
@@ -45,6 +52,7 @@ impl Match {
 
 impl<'a> From<&'a Yaml> for Match {
     fn from(yaml: &'a Yaml) -> Self {
+        trace!("Inside Match::from::<Yaml>");
         let mut m = if let Some(on_event) = yaml["on"].as_str() {
             Match::new(on_event.parse().unwrap())
         } else {
@@ -52,12 +60,16 @@ impl<'a> From<&'a Yaml> for Match {
         };
 
         if let Some(devices) = yaml["devices"].as_vec() {
+            trace!("Loading devices: array");
             for d in devices {
                 if let Some(path) = d["include_devices"].as_str() {
+                    debug!(path = ?path, "Including devices from path");
                     let file = File::open(path).unwrap();
                     let mut devs: UsbDevices = serde_yaml::from_reader(file).unwrap();
+                    debug!(devices = ?devs, "Found devices");
                     m.devices.append(&mut devs.devices);
                 } else if d["name"].as_str().is_some() {
+                    debug!(name = ?d, "Including device inline");
                     m.devices.push(UsbDevice::from(d));
                 } else if let Some(name) = d.as_str() {
                     m.devices.push(UsbDevice::new(name));
@@ -69,14 +81,19 @@ impl<'a> From<&'a Yaml> for Match {
         }
 
         if let Some(ports) = yaml["ports"].as_vec() {
+            trace!("Loading ports: array");
             for p in ports {
                 if let Some(path) = p["include_ports"].as_str() {
+                    debug!(path = ?path, "Including port from path");
                     let file = File::open(path).unwrap();
                     let mut ports: UsbPorts = serde_yaml::from_reader(file).unwrap();
+                    debug!(ports = ?ports, "Found ports");
                     m.ports.append(&mut ports.ports);
                 } else if p["name"].as_str().is_some() {
+                    debug!(name = ?p, "Including port inline");
                     m.ports.push(UsbPort::from(p));
                 } else if let Some(name) = p.as_str() {
+                    debug!(name = ?p, "Including port by name");
                     m.ports.push(UsbPort::new(name));
                     // @TODO: will need to handle lookup of name / merge
                 } else {
