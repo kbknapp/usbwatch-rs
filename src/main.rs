@@ -1,8 +1,6 @@
 #![allow(non_snake_case)]
 #![warn(rust_2018_idioms, future_incompatible)]
 
-use clap::*;
-
 #[macro_use]
 mod macros;
 mod cli;
@@ -15,15 +13,23 @@ mod tokio_udev;
 mod udev;
 mod usb;
 
-use tracing::info;
+use std::env;
+
+use clap::*;
 
 pub fn main() {
-    tracing_subscriber::fmt::init();
-
     use cli::UsbWatchSubCmd::*;
 
-    info!("Parsing command line arguments");
     let args = cli::UsbWatchArgs::parse();
+
+    match args.verbose {
+        0 => (),
+        1 => env::set_var("RUST_LOG", "usbwatch=info"),
+        2 => env::set_var("RUST_LOG", "usbwatch=debug"),
+        _ => env::set_var("RUST_LOG", "usbwatch=trace"),
+    }
+
+    tracing_subscriber::fmt::init();
 
     match args.subcmd {
         Some(CreateDevice(a)) => cmds::create_device::run(a),

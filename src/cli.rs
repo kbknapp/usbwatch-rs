@@ -9,8 +9,8 @@ use crate::usb::UsbEvent;
 #[clap(version = env!("VERSION_WITH_GIT_HASH"))]
 pub struct UsbWatchArgs {
     /// Show verbose output
-    #[clap(long, short)]
-    pub verbose: bool,
+    #[clap(long, short, parse(from_occurrences))]
+    pub verbose: u8,
 
     #[clap(subcommand)]
     pub subcmd: Option<UsbWatchSubCmd>,
