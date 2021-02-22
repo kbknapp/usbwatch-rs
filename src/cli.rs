@@ -60,7 +60,7 @@ pub struct ListenArgs {
     #[clap(long, short, arg_enum, value_name = "KIND", default_value = "all")]
     pub events: UsbEvent,
     /// Display output in format
-    #[clap(long, short, arg_enum, value_name = "FORMAT", default_value = "raw")]
+    #[clap(long, short, arg_enum, value_name = "FORMAT", default_value = "raw", alias="output")]
     pub format: OutFormat,
 }
 
