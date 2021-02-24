@@ -27,6 +27,26 @@ pub enum UsbWatchSubCmd {
     /// List matched components from loaded rules
     #[clap(visible_aliases = &["test", "debug"])]
     Check(CheckArgs),
+
+    /// Scan the currently attached devices and print their info
+    Scan(ScanArgs),
+}
+
+#[derive(Clap, Copy, Clone, Debug)]
+pub struct ScanArgs {
+    /// Only display KIND of objects
+    #[clap(long, short, arg_enum, value_name = "KIND", default_value = "devices")]
+    pub scan_for: ForObject,
+    /// Display output in format
+    #[clap(
+        long,
+        short,
+        arg_enum,
+        value_name = "FORMAT",
+        default_value = "raw",
+        alias = "output"
+    )]
+    pub format: OutFormat,
 }
 
 #[derive(Clap, Copy, Clone, Debug)]

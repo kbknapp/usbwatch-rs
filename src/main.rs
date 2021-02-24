@@ -35,6 +35,7 @@ pub fn main() {
         Some(Listen(a)) => cmds::listen::run(a),
         Some(Run(a)) => cmds::run::run(a),
         Some(Check(a)) => cmds::check::run(a),
+        Some(Scan(a)) => cmds::scan::run(a),
         None => todo!("Impl no subcommand"),
     }
 }
