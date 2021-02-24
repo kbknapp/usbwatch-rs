@@ -2,7 +2,7 @@ mod r#match;
 
 use std::{fmt::Debug, path::PathBuf};
 
-use tracing::{self, debug, error, info, trace};
+use tracing::{self, debug, trace};
 use serde::Serialize;
 use yaml_rust::Yaml;
 

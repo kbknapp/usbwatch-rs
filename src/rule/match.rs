@@ -2,7 +2,7 @@ use std::{fmt::Debug, fs::File};
 
 use serde::Serialize;
 use yaml_rust::Yaml;
-use tracing::{self, debug, error, info, trace};
+use tracing::{self, debug, trace};
 
 use crate::{
     udev::UdevEvent,
