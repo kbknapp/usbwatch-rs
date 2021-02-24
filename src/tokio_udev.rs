@@ -6,6 +6,15 @@ pub struct DebugDevice {
     dev: Device,
 }
 
+impl DebugDevice {
+    #[allow(dead_code)]
+    pub fn new(dev: Device) -> Self {
+        Self {
+            dev
+        }
+    }
+}
+
 impl fmt::Debug for DebugDevice {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Device")
