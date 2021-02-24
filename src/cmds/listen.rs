@@ -66,12 +66,28 @@ impl Handler {
                 if self.args.listen_for == ListenForObject::Ports
                     || self.args.listen_for == ListenForObject::All
                 {
-                    println!("{}", serde_yaml::to_string(&udev_dev.port).unwrap());
+                    print!("---\nports:\n  - ");
+                    let yaml = serde_yaml::to_string(&udev_dev.port).unwrap();
+                    for (i, line) in yaml.lines().skip(1).enumerate() {
+                        if i == 0 {
+                            println!("{}", line);
+                        } else {
+                            println!("    {}", line);
+                        }
+                    }
                 }
                 if self.args.listen_for == ListenForObject::Devices
                     || self.args.listen_for == ListenForObject::All
                 {
-                    println!("{}", serde_yaml::to_string(&udev_dev.device).unwrap());
+                    print!("---\ndevices:\n  - ");
+                    let yaml = serde_yaml::to_string(&udev_dev.device).unwrap();
+                    for (i, line) in yaml.lines().skip(1).enumerate() {
+                        if i == 0 {
+                            println!("{}", line);
+                        } else {
+                            println!("    {}", line);
+                        }
+                    }
                 }
             }
         }
