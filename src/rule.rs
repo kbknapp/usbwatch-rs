@@ -38,6 +38,7 @@ pub struct Rule {
 
 impl Rule {
     pub fn matches_udev_event(&self, event: &UdevEvent) -> bool {
+        debug!(rule = %self.name, "Trying to match event");
         self.r#match.matches_udev_event(event)
     }
 }

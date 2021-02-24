@@ -1,8 +1,8 @@
 use std::{fmt::Debug, fs::File};
 
 use serde::Serialize;
-use yaml_rust::Yaml;
 use tracing::{self, debug, trace};
+use yaml_rust::Yaml;
 
 use crate::{
     udev::UdevEvent,
@@ -29,8 +29,6 @@ impl Match {
 
     pub fn device_ignored(&self, device: &UsbDevice) -> bool {
         trace!(device = ?device, "Inside Match::device_ignored");
-        if self.devices.is_empty() { return false; }
-
         for (i, dev) in self.devices.iter().enumerate() {
             if dev == device {
                 debug!(ignored = ?self.ignore_devices.contains(&i), "Found device");
@@ -50,7 +48,10 @@ impl Match {
     pub fn matches_device(&self, device: &UsbDevice) -> bool {
         trace!(device = ?device, "Inside Match::matches_device");
         trace!(ret = ?(self.devices.is_empty() || (self.devices.contains(device) && ! self.device_ignored(device))), "Returning");
-        self.devices.is_empty() || (self.devices.contains(device) && ! self.device_ignored(device))
+        // If all devices are ignored, then our rule is an "any device except these ..."
+        (self.devices.is_empty()
+            || (self.devices.len() == self.ignore_devices.len() && !self.device_ignored(device)))
+            || (self.devices.contains(device) && !self.device_ignored(device))
     }
 
     pub fn matches_usb_event(&self, event: &UsbEvent) -> bool {
@@ -85,6 +86,19 @@ impl<'a> From<&'a Yaml> for Match {
                     let mut devs: UsbDevices = serde_yaml::from_reader(file).unwrap();
                     debug!(devices = ?devs, "Found devices");
                     m.devices.append(&mut devs.devices);
+                } else if let Some(path) = d["exclude_devices"].as_str() {
+                    debug!(path = ?path, "Excluding devices from path");
+                    let file = File::open(path).unwrap();
+                    let mut devs: UsbDevices = serde_yaml::from_reader(file).unwrap();
+                    debug!(devices = ?devs, "Found devices");
+                    let pre = m.devices.len();
+                    let num_devices = devs.devices.len();
+                    // Add the devices to be able to match against their info
+                    m.devices.append(&mut devs.devices);
+                    for i in pre..(pre + num_devices - 1) {
+                        debug!(i = %i, "Ignoring device index");
+                        m.ignore_devices.push(i);
+                    }
                 } else if d["name"].as_str().is_some() {
                     debug!(name = ?d, "Including device inline");
                     m.devices.push(UsbDevice::from(d));
@@ -101,7 +115,7 @@ impl<'a> From<&'a Yaml> for Match {
                 }
             }
             for ignore_dev in to_ignore.into_iter() {
-                if let Some(ignore_dev) =  ignore_dev.strip_prefix('!') {
+                if let Some(ignore_dev) = ignore_dev.strip_prefix('!') {
                     trace!(ignored_dev = %ignore_dev, "Ignoring device");
                     for (i, d) in m.devices.iter().enumerate() {
                         if let Some(name) = d.name.as_ref() {
