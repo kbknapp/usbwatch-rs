@@ -33,7 +33,7 @@ pub enum UsbWatchSubCmd {
 pub struct ListenArgs {
     /// Only display KIND of objects
     #[clap(long, short, arg_enum, value_name = "KIND", default_value = "all")]
-    pub listen_for: ListenForObject,
+    pub listen_for: ForObject,
     /// Only display KIND of events
     #[clap(long, short, arg_enum, value_name = "KIND", default_value = "all")]
     pub events: UsbEvent,
@@ -43,7 +43,7 @@ pub struct ListenArgs {
 }
 
 #[derive(Clap, Copy, Clone, Debug, PartialEq)]
-pub enum ListenForObject {
+pub enum ForObject {
     Ports,
     Devices,
     All,

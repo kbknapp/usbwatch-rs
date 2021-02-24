@@ -3,7 +3,7 @@ use tokio::sync::{broadcast, mpsc};
 use tracing::{self, debug, error, info, trace};
 
 use crate::{
-    cli::{ListenArgs, ListenForObject, OutFormat},
+    cli::{ForObject, ListenArgs, OutFormat},
     listener::UdevListener,
     shutdown::Shutdown,
     udev::UdevEvent,
@@ -51,20 +51,20 @@ impl Handler {
 
         match self.args.format {
             Raw => {
-                if self.args.listen_for == ListenForObject::Ports
-                    || self.args.listen_for == ListenForObject::All
+                if self.args.listen_for == ForObject::Ports
+                    || self.args.listen_for == ForObject::All
                 {
                     println!("{:#?}", udev_dev.port);
                 }
-                if self.args.listen_for == ListenForObject::Devices
-                    || self.args.listen_for == ListenForObject::All
+                if self.args.listen_for == ForObject::Devices
+                    || self.args.listen_for == ForObject::All
                 {
                     println!("{:#?}", udev_dev.device);
                 }
             }
             Yaml => {
-                if self.args.listen_for == ListenForObject::Ports
-                    || self.args.listen_for == ListenForObject::All
+                if self.args.listen_for == ForObject::Ports
+                    || self.args.listen_for == ForObject::All
                 {
                     print!("---\nports:\n  - ");
                     let yaml = serde_yaml::to_string(&udev_dev.port).unwrap();
@@ -76,8 +76,8 @@ impl Handler {
                         }
                     }
                 }
-                if self.args.listen_for == ListenForObject::Devices
-                    || self.args.listen_for == ListenForObject::All
+                if self.args.listen_for == ForObject::Devices
+                    || self.args.listen_for == ForObject::All
                 {
                     print!("---\ndevices:\n  - ");
                     let yaml = serde_yaml::to_string(&udev_dev.device).unwrap();
