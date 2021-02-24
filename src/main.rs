@@ -32,9 +32,6 @@ pub fn main() {
     tracing_subscriber::fmt::init();
 
     match args.subcmd {
-        Some(CreateDevice(a)) => cmds::create_device::run(a),
-        Some(CreatePort(a)) => cmds::create_port::run(a),
-        Some(CreateRule(a)) => cmds::create_rule::run(a),
         Some(Listen(a)) => cmds::listen::run(a),
         Some(Run(a)) => cmds::run::run(a),
         Some(Check(a)) => cmds::check::run(a),

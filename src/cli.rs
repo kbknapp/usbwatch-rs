@@ -18,15 +18,6 @@ pub struct UsbWatchArgs {
 
 #[derive(Clap)]
 pub enum UsbWatchSubCmd {
-    /// Create a port file
-    CreatePort(CreatePortArgs),
-
-    /// Create a device file
-    CreateDevice(CreateDeviceArgs),
-
-    /// Create a rule file
-    CreateRule(CreateRuleArgs),
-
     /// Listen for events and display them to stdout
     Listen(ListenArgs),
 
@@ -36,19 +27,6 @@ pub enum UsbWatchSubCmd {
     /// List matched components from loaded rules
     #[clap(visible_aliases = &["test", "debug"])]
     Check(CheckArgs),
-}
-
-#[derive(Clap, Debug)]
-pub struct CreateDeviceArgs {}
-
-#[derive(Clap, Debug)]
-pub struct CreatePortArgs {}
-
-#[derive(Clap, Debug)]
-pub struct CreateRuleArgs {
-    /// USB Event activate the rule
-    #[clap(long, short, arg_enum, default_value = "All")]
-    pub on: UsbEvent,
 }
 
 #[derive(Clap, Copy, Clone, Debug)]
