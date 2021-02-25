@@ -1,6 +1,6 @@
 use tokio::signal::unix::{signal, SignalKind};
 use tokio::sync::{broadcast, mpsc};
-use tracing::{self, debug, error, info, trace};
+use tracing::{self, debug, error, info, trace, span, Level};
 
 use crate::{
     cli::{ForObject, ListenArgs, OutFormat},
@@ -20,7 +20,8 @@ struct Handler {
 
 impl Handler {
     async fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        trace!("Inside Handler::run");
+        let span = span!(Level::TRACE, "fn run");
+        let _enter = span.enter();
 
         let shutdown = Shutdown::new(self.notify_shutdown.subscribe());
         tokio::pin!(shutdown);

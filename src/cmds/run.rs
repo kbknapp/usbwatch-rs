@@ -7,7 +7,7 @@ use tokio::io::AsyncWriteExt;
 use tokio::process::Command;
 use tokio::signal::unix::{signal, SignalKind};
 use tokio::sync::{broadcast, mpsc};
-use tracing::{self, debug, error, info, trace};
+use tracing::{self, debug, error, info, trace, span, Level};
 
 use crate::{
     cli::RunArgs, listener::UdevListener, shutdown::Shutdown, state::State, udev::UdevEvent,
@@ -23,7 +23,8 @@ struct Handler {
 }
 
 async fn exec(cmd: String, shell: PathBuf) -> Result<(), ()> {
-    trace!("Inside exec");
+    let span = span!(Level::TRACE, "fn exec");
+    let _enter = span.enter();
 
     debug!("Executing command");
     let mut child = Command::new(&shell)
@@ -56,7 +57,8 @@ async fn exec(cmd: String, shell: PathBuf) -> Result<(), ()> {
 
 impl Handler {
     async fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        trace!("Inside Handler::run");
+        let span = span!(Level::TRACE, "fn run");
+        let _enter = span.enter();
 
         let shutdown = Shutdown::new(self.notify_shutdown.subscribe());
         tokio::pin!(shutdown);

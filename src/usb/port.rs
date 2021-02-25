@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{self, Debug};
 
 use serde::{Deserialize, Serialize};
 use yaml_rust::Yaml;
@@ -44,6 +44,22 @@ impl UsbPort {
             && self.ID_FOR_SEAT.is_none()
             && self.ID_PATH.is_none()
             && self.ID_PATH_TAG.is_none()
+    }
+}
+
+impl fmt::Display for UsbPort{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if let Some(ref name) = self.name {
+            write!(f, "Port {{ name: {} }}", name)
+        } else if let Some(ref name) = self.sysname {
+            write!(f, "Port {{ sysname: {} }}", name)
+        } else if let Some(ref path) = self.syspath {
+            write!(f, "Port {{ syspath: {} }}", path)
+        } else if let Some(ref path) = self.devpath {
+            write!(f, "Port {{ devpath: {} }}", path)
+        } else {
+            write!(f, "Port {{ unk }}")
+        }
     }
 }
 

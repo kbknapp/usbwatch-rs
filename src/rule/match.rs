@@ -1,7 +1,7 @@
 use std::{fmt::Debug, fs::File};
 
 use serde::Serialize;
-use tracing::{self, debug, trace};
+use tracing::{self, span, Level, debug, trace};
 use yaml_rust::Yaml;
 
 use crate::{
@@ -28,20 +28,24 @@ impl Match {
     }
 
     pub fn device_ignored(&self, device: &UsbDevice) -> bool {
-        trace!(device = ?device, "Inside Match::device_ignored");
+        let span = span!(Level::TRACE, "fn device_ignored", %device);
+        let _enter = span.enter();
+
         for (i, dev) in self.devices.iter().enumerate() {
             if dev == device {
-                debug!(ignored = ?self.ignore_devices.contains(&i), "Found device");
+                debug!(ignored = ?self.ignore_devices.contains(&i), index = %i, "Matched device");
                 return self.ignore_devices.contains(&i);
             }
         }
 
+        debug!(ignored = ?false, "Device not matched");
         false
     }
 
     pub fn matches_port(&self, port: &UsbPort) -> bool {
-        trace!(port = ?port, "Inside Match::matches_port");
-        trace!(ret = ?(self.ports.is_empty() || self.ports.contains(port)), "Returning");
+        let span = span!(Level::TRACE, "fn match_port", %port);
+        let _enter = span.enter();
+
         let match_all_ports = self.ports.is_empty();
         let port_match = self.ports.contains(port);
         let ret = match_all_ports || port_match;
@@ -52,8 +56,9 @@ impl Match {
     }
 
     pub fn matches_device(&self, device: &UsbDevice) -> bool {
-        trace!(device = ?device, "Inside Match::matches_device");
-        trace!(ret = ?(self.devices.is_empty() || (self.devices.contains(device) && ! self.device_ignored(device))), "Returning");
+        let span = span!(Level::TRACE, "fn matches_device", device = %device);
+        let _enter = span.enter();
+
         let is_ignored = self.device_ignored(device);
         let exact_match = self.devices.contains(device);
         let match_all = self.devices.is_empty() && self.ignore_devices.is_empty();
@@ -70,8 +75,10 @@ impl Match {
     }
 
     pub fn matches_usb_event(&self, event: &UsbEvent) -> bool {
-        trace!(event = ?event, "Inside Match::matches_usb_event");
-        trace!(ret = ?(&self.on == event), "Returning");
+        let span = span!(Level::TRACE, "fn matches_usb_event", ?event);
+        let _enter = span.enter();
+
+        trace!(matches = ?(&self.on == event), "Returning");
         &self.on == event
     }
 
@@ -84,7 +91,9 @@ impl Match {
 
 impl<'a> From<&'a Yaml> for Match {
     fn from(yaml: &'a Yaml) -> Self {
-        trace!("Inside Match::from::<Yaml>");
+        let span = span!(Level::TRACE, "fn From::<Yaml>");
+        let _enter = span.enter();
+
         let mut m = if let Some(on_event) = yaml["on"].as_str() {
             Match::new(on_event.parse().unwrap())
         } else {
@@ -99,15 +108,14 @@ impl<'a> From<&'a Yaml> for Match {
                     debug!(path = ?path, "Including devices from path");
                     let file = File::open(path).unwrap();
                     let mut devs: UsbDevices = serde_yaml::from_reader(file).unwrap();
-                    debug!(devices = ?devs, "Found devices");
                     m.devices.append(&mut devs.devices);
                 } else if let Some(path) = d["exclude_devices"].as_str() {
                     debug!(path = ?path, "Excluding devices from path");
                     let file = File::open(path).unwrap();
                     let mut devs: UsbDevices = serde_yaml::from_reader(file).unwrap();
-                    debug!(devices = ?devs, "Found devices");
                     let pre = m.devices.len();
                     let num_devices = devs.devices.len();
+                    trace!(%pre, %num_devices);
                     // Add the devices to be able to match against their info
                     m.devices.append(&mut devs.devices);
                     for i in pre..(pre + num_devices - 1) {

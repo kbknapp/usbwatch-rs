@@ -2,7 +2,7 @@ mod r#match;
 
 use std::{fmt::Debug, path::PathBuf};
 
-use tracing::{self, debug, trace};
+use tracing::{self, span, Level, debug, trace};
 use serde::Serialize;
 use yaml_rust::Yaml;
 
@@ -38,14 +38,18 @@ pub struct Rule {
 
 impl Rule {
     pub fn matches_udev_event(&self, event: &UdevEvent) -> bool {
-        debug!(rule = %self.name, "Trying to match event");
+        let span = span!(Level::TRACE, "fn matches_udev_event", rule = %self.name);
+        let _enter = span.enter();
+
         self.r#match.matches_udev_event(event)
     }
 }
 
 impl<'a> From<&'a Yaml> for Rule {
     fn from(yaml: &'a Yaml) -> Self {
-        trace!("Inside Rule::from::<Yaml>");
+        let span = span!(Level::TRACE, "fn From::<Yaml>");
+        let _enter = span.enter();
+
         let name: String = if let Some(name) = yaml["name"].as_str() {
             debug!(name = %name, "Building Rule");
             name.into()

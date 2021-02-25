@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{self, Debug};
 
 use serde::{Deserialize, Serialize};
 use yaml_rust::Yaml;
@@ -56,6 +56,22 @@ impl UsbDevice {
             && self.ID_SERIAL.is_none()
             && self.ID_SERIAL_SHORT.is_none()
             && self.PRODUCT.is_none()
+    }
+}
+
+impl fmt::Display for UsbDevice {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if let Some(ref name) = self.name {
+            write!(f, "Device {{ name: {} }}", name)
+        } else if let Some(ref product) = self.PRODUCT {
+            write!(f, "Device {{ product: {} }}", product)
+        } else if let Some(ref serial) = self.ID_SERIAL {
+            write!(f, "Device {{ serial: {} }}", serial)
+        } else if let Some(ref model) = self.ID_MODEL {
+            write!(f, "Device {{ model: {} }}", model)
+        } else {
+            write!(f, "Device {{ unk }}")
+        }
     }
 }
 

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fs::{self, File};
 use std::path::Path;
 
-use tracing::{self, debug, info, trace};
+use tracing::{self, span, Level, debug, info, trace};
 use yaml_rust::YamlLoader;
 
 use crate::{
@@ -28,38 +28,46 @@ impl State {
     }
 
     pub fn devices_from_file<P: AsRef<Path>>(&mut self, path: P) {
-        trace!(file = ?path.as_ref(), "Inside State::devices_from_file");
+        let span = span!(Level::TRACE, "fn devices_from_file", file = ?path.as_ref());
+        let _enter = span.enter();
+
         let file = File::open(path).unwrap();
         let devices: UsbDevices = serde_yaml::from_reader(file).unwrap();
         info!(num_devs= %devices.devices.len(), "Found Devices");
         for device in devices.devices.into_iter() {
-            debug!(item = ?device.name, "Iter found devices");
+            debug!(device = %device, "Adding Device");
             self.add_device(device);
         }
     }
     pub fn ports_from_file<P: AsRef<Path>>(&mut self, path: P) {
-        trace!(file = ?path.as_ref(), "Inside State::ports_from_file");
+        let span = span!(Level::TRACE, "fn ports_from_file", file = ?path.as_ref());
+        let _enter = span.enter();
+
         let file = File::open(path).unwrap();
         let ports: UsbPorts = serde_yaml::from_reader(file).unwrap();
         info!(num_ports= %ports.ports.len(), "Found Ports");
         for port in ports.ports.into_iter() {
-            debug!(item = ?port.name, "Iter found ports");
+            debug!(port = %port, "Adding Port");
             self.add_port(port);
         }
     }
     pub fn rules_from_file<P: AsRef<Path>>(&mut self, path: P) {
-        trace!(file = ?path.as_ref(), "Inside State::rules_from_file");
+        let span = span!(Level::TRACE, "fn rules_from_file", file = ?path.as_ref());
+        let _enter = span.enter();
+
         let buf = fs::read_to_string(path).unwrap();
         let rules = Rules::from(&YamlLoader::load_from_str(&*buf).unwrap()[0]);
         info!(num_rules= %rules.rules.len(), "Found Rules");
         for rule in rules.rules.into_iter() {
-            debug!(item = ?rule.name, "Iter found rules");
+            debug!(ruel = ?rule.name, "Adding Rule");
             self.rules.push(rule);
         }
     }
 
     pub fn add_port(&mut self, port: UsbPort) {
-        trace!(port = ?port, "Inside State::add_port");
+        let span = span!(Level::TRACE, "fn add_port", port = %port);
+        let _enter = span.enter();
+
         for p in self.ports.iter() {
             if p == &port {
                 debug!("Port already exists; returning");
@@ -67,12 +75,14 @@ impl State {
             }
         }
         self.ports.push(port);
-        debug!(key = self.ports.len(), "Slotting port with None");
+        debug!(key = self.ports.len(), "Slotting empty port");
         self.slot_map.entry(self.ports.len()).or_insert(None);
     }
 
     pub fn add_device(&mut self, device: UsbDevice) {
-        trace!(device = ?device, "Inside State::add_device");
+        let span = span!(Level::TRACE, "fn add_device", device = %device);
+        let _enter = span.enter();
+
         if self.devices.contains(&device) {
             debug!("Device already exists; returning");
             return;
@@ -81,20 +91,22 @@ impl State {
     }
 
     pub fn add_and_slot_device(&mut self, device: UsbDevice, port: UsbPort) {
-        trace!(device = ?device, port = ?port, "Inside State::add_and_slot_device");
+        let span = span!(Level::TRACE, "fn add_and_slot_device", device = %device, port = %port);
+        let _enter = span.enter();
+
         self.add_port(port.clone());
         self.add_device(device.clone());
 
         for (i, p) in self.ports.iter().enumerate() {
-            debug!(i=i, port = ?p.name, "Iter ports");
+            debug!(i=i, port = %p, "Iter ports");
             if p == &port {
-                debug!("Found port");
+                debug!("Matched Port");
                 for (j, d) in self.devices.iter().enumerate() {
-                    debug!(j=j, dev = ?d.name, "Iter devices");
+                    debug!(j=j, device = %d, "Iter devices");
                     if d == &device {
-                        debug!("Found device");
+                        debug!("Matched device");
 
-                        debug!(i = i, j = j, "Setting slot {} to device index {}", i, j);
+                        debug!(i = i, j = j, "Setting port slot {} to device index {}", i, j);
                         *self.slot_map.entry(i).or_insert(Some(j)) = Some(j);
                         debug!(
                             i = i,
@@ -116,11 +128,13 @@ impl State {
     }
 
     pub fn rm_and_unslot_device(&mut self, device: UsbDevice) {
-        trace!(device = ?device, "Inside State::rm_and_unslot_device");
+        let span = span!(Level::TRACE, "fn rm_and_unslot_device", device = %device);
+        let _enter = span.enter();
+
         for (i, d) in self.devices.iter().enumerate() {
-            debug!(i=i, dev = ?d.name, "Iter devices");
+            debug!(i=i, device = %d, "Iter devices");
             if d == &device {
-                debug!("Found device");
+                debug!("Matched device");
                 if let Some(p) = self.rev_slot_map.get_mut(&i) {
                     debug!(
                         "Found port index {} via device reverse slot map index {}",
@@ -140,6 +154,7 @@ impl State {
                     debug!("Removing device index {} from active devices", idx);
                     self.active_devices.swap_remove(idx);
                 }
+                debug!("Returning");
                 break;
             }
         }
