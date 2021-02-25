@@ -42,16 +42,31 @@ impl Match {
     pub fn matches_port(&self, port: &UsbPort) -> bool {
         trace!(port = ?port, "Inside Match::matches_port");
         trace!(ret = ?(self.ports.is_empty() || self.ports.contains(port)), "Returning");
-        self.ports.is_empty() || self.ports.contains(port)
+        let match_all_ports = self.ports.is_empty();
+        let port_match = self.ports.contains(port);
+        let ret = match_all_ports || port_match;
+
+        debug!(?match_all_ports, ?port_match, returning = ?ret);
+
+        ret
     }
 
     pub fn matches_device(&self, device: &UsbDevice) -> bool {
         trace!(device = ?device, "Inside Match::matches_device");
         trace!(ret = ?(self.devices.is_empty() || (self.devices.contains(device) && ! self.device_ignored(device))), "Returning");
-        // If all devices are ignored, then our rule is an "any device except these ..."
-        (self.devices.is_empty()
-            || (self.devices.len() == self.ignore_devices.len() && !self.device_ignored(device)))
-            || (self.devices.contains(device) && !self.device_ignored(device))
+        let is_ignored = self.device_ignored(device);
+        let exact_match = self.devices.contains(device);
+        let match_all = self.devices.is_empty() && self.ignore_devices.is_empty();
+
+        // @TODO There is an edge case of we just *happen* to have the same
+        // number of excludes as devices
+        trace!(num_devices = %self.devices.len(), num_ignored = %self.ignore_devices.len());
+        let match_all_except = self.devices.len() == self.ignore_devices.len();
+
+        let ret = match_all || ((match_all_except || exact_match) && !is_ignored);
+
+        trace!(?exact_match, ?is_ignored, ?match_all_except, ?match_all, returning = ?ret);
+        ret
     }
 
     pub fn matches_usb_event(&self, event: &UsbEvent) -> bool {
