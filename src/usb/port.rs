@@ -21,8 +21,6 @@ pub struct UsbPort {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     sysnum: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    DEVPATH: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
     ID_FOR_SEAT: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     ID_PATH: Option<String>,
@@ -43,7 +41,6 @@ impl UsbPort {
             && self.devpath.is_none()
             && self.sysname.is_none()
             && self.sysnum.is_none()
-            && self.DEVPATH.is_none()
             && self.ID_FOR_SEAT.is_none()
             && self.ID_PATH.is_none()
             && self.ID_PATH_TAG.is_none()
@@ -57,9 +54,6 @@ impl<'a> From<&'a tokio_udev::Device> for UsbPort {
             devpath: Some(d.devpath().to_string_lossy().to_string()),
             sysname: Some(d.sysname().to_string_lossy().to_string()),
             sysnum: d.sysnum(),
-            DEVPATH: d
-                .property_value("DEVPATH")
-                .map(|v| v.to_string_lossy().to_string()),
             ID_FOR_SEAT: d
                 .property_value("ID_FOR_SEAT")
                 .map(|v| v.to_string_lossy().to_string()),
@@ -85,7 +79,6 @@ impl<'a> From<&'a Yaml> for UsbPort {
         yaml_str!(port, yaml, syspath);
         yaml_str!(port, yaml, devpath);
         yaml_str!(port, yaml, sysname);
-        yaml_str!(port, yaml, DEVPATH);
         yaml_str!(port, yaml, ID_FOR_SEAT);
         yaml_str!(port, yaml, ID_PATH);
         yaml_str!(port, yaml, ID_PATH_TAG);
@@ -114,7 +107,6 @@ impl PartialEq<UsbPort> for UsbPort {
         cmp_ignore_none!(self, other, devpath);
         cmp_ignore_none!(self, other, sysname);
         cmp_ignore_none!(self, other, sysnum);
-        cmp_ignore_none!(self, other, DEVPATH);
         cmp_ignore_none!(self, other, ID_FOR_SEAT);
         cmp_ignore_none!(self, other, ID_PATH);
         cmp_ignore_none!(self, other, ID_PATH_TAG);
@@ -136,7 +128,6 @@ mod tests {
             devpath: Some("bar".into()),
             sysname: Some("baz".into()),
             sysnum: Some(5),
-            DEVPATH: Some("food".into()),
             ID_FOR_SEAT: Some("foog".into()),
             ID_PATH: Some("fool".into()),
             ID_PATH_TAG: Some("foop".into()),
@@ -160,7 +151,6 @@ mod tests {
             devpath: Some("bar".into()),
             sysname: Some("baz".into()),
             sysnum: Some(5),
-            DEVPATH: Some("food".into()),
             ID_FOR_SEAT: Some("foog".into()),
             ID_PATH: Some("fool".into()),
             ID_PATH_TAG: Some("foop".into()),
@@ -188,7 +178,6 @@ mod tests {
             devpath: Some("bar".into()),
             sysname: Some("baz".into()),
             sysnum: Some(5),
-            DEVPATH: Some("food".into()),
             ID_FOR_SEAT: Some("foog".into()),
             ID_PATH: Some("fool".into()),
             ID_PATH_TAG: Some("foop".into()),
@@ -197,7 +186,6 @@ mod tests {
         // Less Specific
         let p2 = UsbPort {
             name: Some("baa".into()),
-            DEVPATH: Some("food".into()),
             ..Default::default()
         };
 
@@ -213,7 +201,6 @@ mod tests {
             devpath: Some("bar".into()),
             sysname: Some("baz".into()),
             sysnum: Some(5),
-            DEVPATH: Some("food".into()),
             ID_FOR_SEAT: Some("foog".into()),
             ID_PATH: Some("fool".into()),
             ID_PATH_TAG: Some("foop".into()),
@@ -241,7 +228,6 @@ mod tests {
             devpath: Some("bar".into()),
             sysname: Some("baz".into()),
             sysnum: Some(5),
-            DEVPATH: Some("food".into()),
             ID_FOR_SEAT: Some("foog".into()),
             ID_PATH: Some("fool".into()),
             ID_PATH_TAG: Some("foop".into()),
@@ -266,7 +252,6 @@ mod tests {
             devpath: Some("bar".into()),
             sysname: Some("baz".into()),
             sysnum: Some(5),
-            DEVPATH: Some("food".into()),
             ID_FOR_SEAT: Some("foog".into()),
             ID_PATH: Some("fool".into()),
             ID_PATH_TAG: Some("foop".into()),
@@ -286,7 +271,6 @@ mod tests {
             devpath: Some("bar".into()),
             sysname: Some("baz".into()),
             sysnum: Some(5),
-            DEVPATH: Some("food".into()),
             ID_FOR_SEAT: Some("foog".into()),
             ID_PATH: Some("fool".into()),
             ID_PATH_TAG: Some("foop".into()),
@@ -321,7 +305,6 @@ mod tests {
             devpath: Some("bar".into()),
             sysname: Some("baz".into()),
             sysnum: Some(5),
-            DEVPATH: Some("food".into()),
             ID_FOR_SEAT: Some("foog".into()),
             ID_PATH: Some("fool".into()),
             ID_PATH_TAG: Some("foop".into()),
@@ -333,7 +316,6 @@ mod tests {
             devpath: Some("bar".into()),
             sysname: Some("baz".into()),
             sysnum: Some(5),
-            DEVPATH: Some("food".into()),
             ID_FOR_SEAT: Some("foog".into()),
             ID_PATH: Some("fool".into()),
             ID_PATH_TAG: Some("foop".into()),
@@ -350,7 +332,6 @@ mod tests {
             devpath: Some("bar".into()),
             sysname: Some("baz".into()),
             sysnum: Some(5),
-            DEVPATH: Some("food".into()),
             ID_FOR_SEAT: Some("foog".into()),
             ID_PATH: Some("fool".into()),
             ID_PATH_TAG: Some("foop".into()),
@@ -362,7 +343,6 @@ mod tests {
             devpath: Some("bar".into()),
             sysname: Some("baz".into()),
             sysnum: Some(5),
-            DEVPATH: Some("food".into()),
             ID_FOR_SEAT: Some("foog".into()),
             ID_PATH: Some("fool".into()),
             ID_PATH_TAG: Some("foop".into()),
