@@ -118,8 +118,7 @@ impl<'a> From<&'a Yaml> for Match {
                     trace!(%pre, %num_devices);
                     // Add the devices to be able to match against their info
                     m.devices.append(&mut devs.devices);
-                    for i in pre..(pre + num_devices - 1) {
-                        debug!(i = %i, "Ignoring device index");
+                    for i in pre..(pre + num_devices) {
                         m.ignore_devices.push(i);
                     }
                 } else if d["name"].as_str().is_some() {
