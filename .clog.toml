@@ -1,0 +1,6 @@
+[clog]
+repository = "https://github.com/kbknapp/usbwatch-rs"
+subtitle = "usbwatch Release"
+
+[sections]
+Documentation = ["docs", "doc"]
