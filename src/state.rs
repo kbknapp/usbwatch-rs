@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fs::{self, File};
 use std::path::Path;
 
-use tracing::{self, span, Level, debug, info, trace};
+use tracing::{self, debug, info, span, Level};
 use yaml_rust::YamlLoader;
 
 use crate::{
@@ -106,7 +106,13 @@ impl State {
                     if d == &device {
                         debug!("Matched device");
 
-                        debug!(i = i, j = j, "Setting port slot {} to device index {}", i, j);
+                        debug!(
+                            i = i,
+                            j = j,
+                            "Setting port slot {} to device index {}",
+                            i,
+                            j
+                        );
                         *self.slot_map.entry(i).or_insert(Some(j)) = Some(j);
                         debug!(
                             i = i,

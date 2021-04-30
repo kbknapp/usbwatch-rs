@@ -7,7 +7,7 @@ use tokio::io::AsyncWriteExt;
 use tokio::process::Command;
 use tokio::signal::unix::{signal, SignalKind};
 use tokio::sync::{broadcast, mpsc};
-use tracing::{self, debug, error, info, trace, span, Level};
+use tracing::{self, debug, error, info, span, Level};
 
 use crate::{
     cli::RunArgs, listener::UdevListener, shutdown::Shutdown, state::State, udev::UdevEvent,

@@ -2,8 +2,8 @@ mod r#match;
 
 use std::{fmt::Debug, path::PathBuf};
 
-use tracing::{self, span, Level, debug, trace};
 use serde::Serialize;
+use tracing::{self, debug, span, Level};
 use yaml_rust::Yaml;
 
 use crate::udev::UdevEvent;
