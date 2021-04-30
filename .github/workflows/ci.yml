@@ -22,8 +22,8 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
 
-      - name: Install cc
-        run: sudo apt-get update && sudo apt-get install --yes gcc
+      - name: Install deps
+        run: sudo apt-get update && sudo apt-get install --yes gcc libudev-dev
 
       - uses: actions-rs/cargo@v1
         with:
