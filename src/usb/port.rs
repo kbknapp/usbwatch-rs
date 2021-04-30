@@ -47,7 +47,7 @@ impl UsbPort {
     }
 }
 
-impl fmt::Display for UsbPort{
+impl fmt::Display for UsbPort {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(ref name) = self.name {
             write!(f, "Port {{ name: {} }}", name)
@@ -202,6 +202,7 @@ mod tests {
         // Less Specific
         let p2 = UsbPort {
             name: Some("baa".into()),
+            syspath: Some("foo".into()), // name is ignored
             ..Default::default()
         };
 
