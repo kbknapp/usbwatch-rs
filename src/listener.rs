@@ -2,7 +2,7 @@ use std::ffi::OsStr;
 
 use tokio::sync::{broadcast, mpsc};
 use tokio_stream::StreamExt;
-use tokio_udev::{self, EventType};
+use tokio_udev::{self, AsyncMonitorSocket, EventType};
 use tracing::error;
 
 use crate::{shutdown::Shutdown, udev::UdevEvent};
@@ -18,21 +18,24 @@ pub struct UdevListener {
 
 impl UdevListener {
     pub async fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        let mon = tokio_udev::MonitorBuilder::new().unwrap();
-        let mut event_iter = mon
-            .match_subsystem("usb")
-            .unwrap()
-            .listen()
-            .unwrap()
-            .filter(|e| e.is_ok())
-            .filter(|e| {
-                let et = e.as_ref().unwrap().event_type();
-                et == EventType::Add || et == EventType::Remove
-            })
-            .filter(|e| {
-                let d = e.as_ref().unwrap().device();
-                Some(OsStr::new("usb_interface")) != d.devtype()
-            });
+        let mut event_iter = AsyncMonitorSocket::new(
+            tokio_udev::MonitorBuilder::new()
+                .unwrap()
+                .match_subsystem("usb")
+                .unwrap()
+                .listen()
+                .unwrap(),
+        )
+        .unwrap()
+        .filter(|e| e.is_ok())
+        .filter(|e| {
+            let et = e.as_ref().unwrap().event_type();
+            et == EventType::Add || et == EventType::Remove
+        })
+        .filter(|e| {
+            let d = e.as_ref().unwrap().device();
+            Some(OsStr::new("usb_interface")) != d.devtype()
+        });
 
         while !self.shutdown.is_shutdown() {
             let event = tokio::select! {

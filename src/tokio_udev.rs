@@ -1,6 +1,6 @@
 use std::fmt;
 
-use tokio_udev::{self, Attribute, Device, Property};
+use tokio_udev::{self, Device};
 
 pub struct DebugDevice {
     dev: Device,
@@ -29,7 +29,15 @@ impl fmt::Debug for DebugDevice {
                 &self
                     .dev
                     .properties()
-                    .map(DebugProperty::new)
+                    .map(|e| {
+
+
+        DebugProperty {
+            name: e.name().to_string_lossy().to_string(),
+            value: e.value().to_string_lossy().to_string(),
+        }
+
+                    })
                     .collect::<Vec<_>>(),
             )
             .field(
@@ -37,7 +45,14 @@ impl fmt::Debug for DebugDevice {
                 &self
                     .dev
                     .attributes()
-                    .map(DebugAttribute::new)
+                    .map(|e| {
+
+
+        DebugAttribute {
+            name: e.name().to_string_lossy().to_string(),
+            value: Some(e.value().to_string_lossy().to_string()),
+        }
+                    })
                     .collect::<Vec<_>>(),
             )
             .finish()
@@ -49,14 +64,6 @@ pub struct DebugProperty {
     value: String,
 }
 
-impl DebugProperty {
-    pub fn new(prop: Property<'_>) -> Self {
-        Self {
-            name: prop.name().to_string_lossy().to_string(),
-            value: prop.value().to_string_lossy().to_string(),
-        }
-    }
-}
 impl fmt::Debug for DebugProperty {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Property")
@@ -69,15 +76,6 @@ impl fmt::Debug for DebugProperty {
 pub struct DebugAttribute {
     name: String,
     value: Option<String>,
-}
-
-impl DebugAttribute {
-    pub fn new(attr: Attribute<'_>) -> Self {
-        Self {
-            name: attr.name().to_string_lossy().to_string(),
-            value: attr.value().map(|v| v.to_string_lossy().to_string()),
-        }
-    }
 }
 
 impl fmt::Debug for DebugAttribute {
