@@ -23,7 +23,7 @@ readme = "README.md"
 bitflags = "2.2.1"
 clap = {version ="4.2.7", features = ["derive"]}
 futures-core = "0.3.12"
-parking_lot = "0.11.1"
+parking_lot = "0.12.1"
 serde = { version = "1.0.123", features = ["derive"] }
 serde_yaml = "0.8.17"
 tokio = { version = "1", features = ["full"] }
