@@ -124,17 +124,17 @@ impl<'a> From<&'a Yaml> for UsbDevice {
             todo!("Handle Device::from<Yaml> with no name key")
         };
 
-        yaml_str!(device, &yaml, ID_MODEL);
-        yaml_str!(device, &yaml, ID_MODEL_ENC);
-        yaml_str!(device, &yaml, ID_MODEL_FROM_DATABASE);
-        yaml_str!(device, &yaml, ID_MODEL_ID);
-        yaml_str!(device, &yaml, ID_VENDOR);
-        yaml_str!(device, &yaml, ID_VENDOR_ENC);
-        yaml_str!(device, &yaml, ID_VENDOR_FROM_DATABASE);
-        yaml_str!(device, &yaml, ID_VENDOR_ID);
-        yaml_str!(device, &yaml, ID_SERIAL);
-        yaml_str!(device, &yaml, ID_SERIAL_SHORT);
-        yaml_str!(device, &yaml, PRODUCT);
+        yaml_str!(device, yaml, ID_MODEL);
+        yaml_str!(device, yaml, ID_MODEL_ENC);
+        yaml_str!(device, yaml, ID_MODEL_FROM_DATABASE);
+        yaml_str!(device, yaml, ID_MODEL_ID);
+        yaml_str!(device, yaml, ID_VENDOR);
+        yaml_str!(device, yaml, ID_VENDOR_ENC);
+        yaml_str!(device, yaml, ID_VENDOR_FROM_DATABASE);
+        yaml_str!(device, yaml, ID_VENDOR_ID);
+        yaml_str!(device, yaml, ID_SERIAL);
+        yaml_str!(device, yaml, ID_SERIAL_SHORT);
+        yaml_str!(device, yaml, PRODUCT);
 
         device
     }

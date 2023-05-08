@@ -56,7 +56,7 @@ impl State {
         let _enter = span.enter();
 
         let buf = fs::read_to_string(path).unwrap();
-        let rules = Rules::from(&YamlLoader::load_from_str(&*buf).unwrap()[0]);
+        let rules = Rules::from(&YamlLoader::load_from_str(&buf).unwrap()[0]);
         info!(num_rules= %rules.rules.len(), "Found Rules");
         for rule in rules.rules.into_iter() {
             debug!(ruel = ?rule.name, "Adding Rule");

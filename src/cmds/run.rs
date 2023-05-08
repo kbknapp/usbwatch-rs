@@ -48,7 +48,7 @@ async fn exec(cmd: String, shell: PathBuf) -> Result<(), ()> {
         info!("Command completed successfully");
     } else {
         info!(
-            "Command completed with error code {:?}",
+            "Command completed with error code {code:?}",
             code = status.code()
         );
     }

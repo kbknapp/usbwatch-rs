@@ -27,7 +27,7 @@ pub fn run(a: CheckArgs) {
 
     if let Some(path) = a.rules {
         let buf = fs::read_to_string(path).unwrap();
-        let rules = Rules::from(&YamlLoader::load_from_str(&*buf).unwrap()[0]);
+        let rules = Rules::from(&YamlLoader::load_from_str(&buf).unwrap()[0]);
         println!("{:#?}", rules);
     }
 }
