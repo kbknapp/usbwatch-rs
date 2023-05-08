@@ -1,9 +1,24 @@
 # usbwatch-rs
 
-Monitor USB events and execute actions based on USB rules.
+![Rust Version][rustc-image]
+[![crates.io][crate-image]][crate-link]
+[![Documentation][docs-image]][docs-link]
+[![Dependency Status][deps-image]][deps-link]
+
+Monitor USB events and execute actions based on rules.
+
+
+<!-- vim-markdown-toc GFM -->
+
+* [Example](#example)
+* [Contributing](#contributing)
+* [License](#license)
+        * [Contribution](#contribution)
+
+<!-- vim-markdown-toc -->
 
 `usbwatch` works by monitoring UDEV events for a specific "device" or "port" (or
-combination), and executing actions based off "rules."
+combination), and executing actions based off user defined "rules."
 
 At runtime, you tell `usbwatch` which rule sets to utilize.
 
@@ -22,10 +37,13 @@ more targetted `usbwatch create-device` command to listen for only a single
 device event and write the file for us.
 
 It's best to start with the target USB device unplugged, as the `remove` event
-carries very few datails about the device that was unplugged (Internally
-`usbwatch` keeps a state list of which devices are plugged in to which ports,
-however it can only record this state if it sees the initial `add` event for the
-device). 
+carries very few datails about the device that was unplugged 
+
+> **Note**
+> Internally `usbwatch` can utilize the more detailed "add" information even on
+> a "remove" event because it keeps state of which devices are plugged
+> in to which ports, however it can only record this state if it sees the
+> initial `add` event for the device). 
 
 Once we tell `usbwatch` to listen, we plug in the device to cause an event. We
 also need to provide a file to save our device info to, here we use
@@ -37,7 +55,7 @@ $ usbwatch create-device --output ex1.yml --name "My Cruzer"
   Listening for device events...
 ```
 
-Now eithr plug in, or unplug the device.
+Now either plug in, or unplug the device.
 
 ``` sh
   Listening for device events...
@@ -100,10 +118,11 @@ rules:
     command: "echo 'Example was plugged in!' >> usb.log"
 ```
 
-**SECURITY**: If you have `usbwatch` running as `root` in a service such as via
-systemd, the `.yml` rules files should only be writable by `root` (permissions
-`600` owned by `root:root`), otherwise you're giving `root` access to anyone who
-can write to these files and cause a USB event to occur.
+> **Warning** 
+> If you have `usbwatch` running as `root` in a service such as via systemd,
+> the `.yml` rules files should only be writable by `root` (permissions `600`
+> owned by `root:root`), otherwise you're giving `root` access to anyone who
+> can write to these files and cause a USB event to occur.
 
 Our example matches just the single device when connected to *any* port. In the
 rule file, the device information is pulled from the file we created earlier,
@@ -118,3 +137,40 @@ information from the `listen` subcommand.
 In order to run our rule, we use `usbwatch run --rules ex1_connect.yml`. You
 should now see a new file created `usb.log` with a new line each time you plug
 in that device to any port.
+
+# Contributing
+
+You'll need:
+
+- A [Rust compiler][rustup]
+- `libudev` header files installed (e.g. `systemd-devel` on Fedora, or
+  `libudev-dev` on Ubuntu)
+
+# License
+
+This crate is licensed under either of
+
+ * [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+ * [MIT license](http://opensource.org/licenses/MIT)
+
+at your option.
+
+### Contribution
+
+Unless you explicitly note otherwise, any contribution intentionally submitted
+for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
+dual licensed as above, without any additional terms or conditions.
+
+[//]: # (badges)
+
+[rustc-image]: https://img.shields.io/badge/rustc-1.59+-blue.svg
+[crate-image]: https://img.shields.io/crates/u/usbwatch.svg
+[crate-link]: https://crates.io/crates/usbwatch
+[docs-image]: https://docs.rs/usbwatch/badge.svg
+[docs-link]: https://docs.rs/usbwatch
+[deps-image]: https://deps.rs/repo/github/kbknapp/usbwatch-rs/status.svg
+[deps-link]: https://deps.rs/repo/github/kbknapp/usbwatch-rs
+
+[//]: # (links)
+
+[rustup]: https://rustup.rs
