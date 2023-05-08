@@ -1,5 +1,7 @@
-use tokio::signal::unix::{signal, SignalKind};
-use tokio::sync::{broadcast, mpsc};
+use tokio::{
+    signal::unix::{signal, SignalKind},
+    sync::{broadcast, mpsc},
+};
 use tracing::{self, debug, error, info, span, Level};
 
 use crate::{

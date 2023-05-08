@@ -42,7 +42,8 @@ impl UdevListener {
 
             match event {
                 Some(Ok(e)) => {
-                    let _ = self.udev_event_tx.send(e.into())?; // @TODO real error
+                    let _ = self.udev_event_tx.send(e.into())?; // @TODO real
+                                                                // error
                 }
                 Some(Err(err)) => {
                     error!(cause = ?err, "udev event error");

@@ -28,9 +28,7 @@ impl Shutdown {
     }
 
     /// Returns `true` if the shutdown signal has been received.
-    pub(crate) fn is_shutdown(&self) -> bool {
-        self.shutdown
-    }
+    pub(crate) fn is_shutdown(&self) -> bool { self.shutdown }
 
     /// Receive the shutdown notice, waiting if necessary.
     pub(crate) async fn recv(&mut self) {

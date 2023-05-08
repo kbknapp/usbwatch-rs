@@ -1,6 +1,8 @@
-use std::collections::HashMap;
-use std::fs::{self, File};
-use std::path::Path;
+use std::{
+    collections::HashMap,
+    fs::{self, File},
+    path::Path,
+};
 
 use tracing::{self, debug, info, span, Level};
 use yaml_rust::YamlLoader;
@@ -23,9 +25,7 @@ pub struct State {
 }
 
 impl State {
-    pub fn new() -> Self {
-        Self::default()
-    }
+    pub fn new() -> Self { Self::default() }
 
     pub fn devices_from_file<P: AsRef<Path>>(&mut self, path: P) {
         let span = span!(Level::TRACE, "fn devices_from_file", file = ?path.as_ref());
@@ -39,6 +39,7 @@ impl State {
             self.add_device(device);
         }
     }
+
     pub fn ports_from_file<P: AsRef<Path>>(&mut self, path: P) {
         let span = span!(Level::TRACE, "fn ports_from_file", file = ?path.as_ref());
         let _enter = span.enter();
@@ -51,6 +52,7 @@ impl State {
             self.add_port(port);
         }
     }
+
     pub fn rules_from_file<P: AsRef<Path>>(&mut self, path: P) {
         let span = span!(Level::TRACE, "fn rules_from_file", file = ?path.as_ref());
         let _enter = span.enter();

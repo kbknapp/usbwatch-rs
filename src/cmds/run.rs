@@ -1,12 +1,12 @@
-use std::path::PathBuf;
-use std::process::Stdio;
-use std::sync::Arc;
+use std::{path::PathBuf, process::Stdio, sync::Arc};
 
 use parking_lot::Mutex;
-use tokio::io::AsyncWriteExt;
-use tokio::process::Command;
-use tokio::signal::unix::{signal, SignalKind};
-use tokio::sync::{broadcast, mpsc};
+use tokio::{
+    io::AsyncWriteExt,
+    process::Command,
+    signal::unix::{signal, SignalKind},
+    sync::{broadcast, mpsc},
+};
 use tracing::{self, debug, error, info, span, Level};
 
 use crate::{
@@ -108,7 +108,7 @@ pub fn run(a: RunArgs) {
         .unwrap()
         .block_on(async {
             debug!("Creating signal listeners");
-            //let (event_tx, event_rx) = broadcast::channel(32);
+            // let (event_tx, event_rx) = broadcast::channel(32);
             let mut sigint = signal(SignalKind::interrupt()).unwrap();
             let mut sighup = signal(SignalKind::hangup()).unwrap();
 

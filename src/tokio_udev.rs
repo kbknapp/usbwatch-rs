@@ -8,9 +8,7 @@ pub struct DebugDevice {
 
 impl DebugDevice {
     #[allow(dead_code)]
-    pub fn new(dev: Device) -> Self {
-        Self { dev }
-    }
+    pub fn new(dev: Device) -> Self { Self { dev } }
 }
 
 impl fmt::Debug for DebugDevice {
