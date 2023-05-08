@@ -3,14 +3,14 @@ mod port;
 
 use std::str::FromStr;
 
-use clap::Clap;
+use clap::ValueEnum;
 use serde::{ser::Serializer, Deserialize, Serialize};
 use tokio_udev::EventType;
 
 pub use device::{UsbDevice, UsbDevices};
 pub use port::{UsbPort, UsbPorts};
 
-#[derive(Clap, Copy, Clone, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(ValueEnum, Copy, Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub enum UsbEvent {
     Add,
     Bind,
