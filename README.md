@@ -33,11 +33,11 @@ First, if we don't already have the device details handy, we can use `usbwatch
 listen` to display events and manually record the appropriate details.
 
 However, if we don't want to see all events, devices, and ports we can use a
-more targetted `usbwatch create-device` command to listen for only a single
+more targeted `usbwatch create-device` command to listen for only a single
 device event and write the file for us.
 
 It's best to start with the target USB device unplugged, as the `remove` event
-carries very few datails about the device that was unplugged 
+carries very few details about the device that was unplugged 
 
 > **Note**
 > Internally `usbwatch` can utilize the more detailed "add" information even on

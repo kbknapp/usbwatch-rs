@@ -9,7 +9,7 @@ rules:
 
       # Devices are logical OR (any of these devices)
       #
-      # Duplicate devices by default emmit a warning, but can be changed to
+      # Duplicate devices by default emit a warning, but can be changed to
       # errors, or ignored if desired.
       #
       # If no devices are defined, all devices will trigger match
@@ -30,7 +30,7 @@ rules:
 
       # Ports are logical OR (any of these ports)
       #
-      # Duplicate ports by default emmit a warning, but can be changed to errors,
+      # Duplicate ports by default emit a warning, but can be changed to errors,
       # or ignored if desired.
       #
       # If no ports are defined, all ports will trigger match

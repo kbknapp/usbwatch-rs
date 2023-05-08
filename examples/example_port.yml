@@ -4,7 +4,7 @@ ports:
   # The `name` is a human friendly way to reference in rule files
   - name: "left 3.1"
     # All below properties are defined by udev and can be found by using the
-    # `usbwatch listen --objects=ports --formt=yaml` command and adding/removing
+    # `usbwatch listen --objects=ports --format=yaml` command and adding/removing
     # the desired port
     #
     # All properties are optional, and are logical AND (i.e. all properties must

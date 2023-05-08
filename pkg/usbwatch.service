@@ -1,6 +1,6 @@
 [Unit]
 Description=USBWatch
-After=mutli-user.target
+After=multi-user.target
 
 [Service]
 Type=simple
