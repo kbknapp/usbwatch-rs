@@ -7,7 +7,8 @@ fn main() {
         .unwrap();
     let git_hash = String::from_utf8(output.stdout).unwrap();
     println!(
-        "cargo:rustc-env=VERSION_WITH_GIT_HASH={}",
-        format!("v{} ({})", env!("CARGO_PKG_VERSION"), &git_hash[..8])
+        "cargo:rustc-env=VERSION_WITH_GIT_HASH='v{} ({})'",
+        env!("CARGO_PKG_VERSION"),
+        &git_hash[..8]
     );
 }
