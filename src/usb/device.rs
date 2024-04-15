@@ -9,31 +9,32 @@ pub struct UsbDevices {
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub struct UsbDevice {
     #[serde(serialize_with = "super::empty_if_none")]
     pub name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    ID_MODEL: Option<String>,
+    id_model: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    ID_MODEL_ENC: Option<String>,
+    id_model_enc: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    ID_MODEL_FROM_DATABASE: Option<String>,
+    id_model_from_database: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    ID_MODEL_ID: Option<String>,
+    id_model_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    ID_SERIAL: Option<String>,
+    id_serial: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    ID_SERIAL_SHORT: Option<String>,
+    id_serial_short: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    ID_VENDOR: Option<String>,
+    id_vendor: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    ID_VENDOR_ENC: Option<String>,
+    id_vendor_enc: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    ID_VENDOR_FROM_DATABASE: Option<String>,
+    id_vendor_from_database: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    ID_VENDOR_ID: Option<String>,
+    id_vendor_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    PRODUCT: Option<String>,
+    product: Option<String>,
 }
 
 impl UsbDevice {
@@ -45,17 +46,17 @@ impl UsbDevice {
     }
 
     pub fn is_empty(&self) -> bool {
-        self.ID_MODEL.is_none()
-            && self.ID_MODEL_ENC.is_none()
-            && self.ID_MODEL_FROM_DATABASE.is_none()
-            && self.ID_MODEL_ID.is_none()
-            && self.ID_VENDOR.is_none()
-            && self.ID_VENDOR_ENC.is_none()
-            && self.ID_VENDOR_FROM_DATABASE.is_none()
-            && self.ID_VENDOR_ID.is_none()
-            && self.ID_SERIAL.is_none()
-            && self.ID_SERIAL_SHORT.is_none()
-            && self.PRODUCT.is_none()
+        self.id_model.is_none()
+            && self.id_model_enc.is_none()
+            && self.id_model_from_database.is_none()
+            && self.id_model_id.is_none()
+            && self.id_vendor.is_none()
+            && self.id_vendor_enc.is_none()
+            && self.id_vendor_from_database.is_none()
+            && self.id_vendor_id.is_none()
+            && self.id_serial.is_none()
+            && self.id_serial_short.is_none()
+            && self.product.is_none()
     }
 }
 
@@ -63,11 +64,11 @@ impl fmt::Display for UsbDevice {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(ref name) = self.name {
             write!(f, "Device {{ name: {} }}", name)
-        } else if let Some(ref product) = self.PRODUCT {
+        } else if let Some(ref product) = self.product {
             write!(f, "Device {{ product: {} }}", product)
-        } else if let Some(ref serial) = self.ID_SERIAL {
+        } else if let Some(ref serial) = self.id_serial {
             write!(f, "Device {{ serial: {} }}", serial)
-        } else if let Some(ref model) = self.ID_MODEL {
+        } else if let Some(ref model) = self.id_model {
             write!(f, "Device {{ model: {} }}", model)
         } else {
             write!(f, "Device {{ unk }}")
@@ -78,37 +79,37 @@ impl fmt::Display for UsbDevice {
 impl<'a> From<&'a tokio_udev::Device> for UsbDevice {
     fn from(d: &tokio_udev::Device) -> Self {
         Self {
-            ID_MODEL: d
+            id_model: d
                 .property_value("ID_MODEL")
                 .map(|v| v.to_string_lossy().to_string()),
-            ID_MODEL_ENC: d
+            id_model_enc: d
                 .property_value("ID_MODEL_ENC")
                 .map(|v| v.to_string_lossy().to_string()),
-            ID_MODEL_FROM_DATABASE: d
+            id_model_from_database: d
                 .property_value("ID_MODEL_FROM_DATABASE")
                 .map(|v| v.to_string_lossy().to_string()),
-            ID_MODEL_ID: d
+            id_model_id: d
                 .property_value("ID_MODEL_ID")
                 .map(|v| v.to_string_lossy().to_string()),
-            ID_SERIAL: d
+            id_serial: d
                 .property_value("ID_SERIAL")
                 .map(|v| v.to_string_lossy().to_string()),
-            ID_SERIAL_SHORT: d
+            id_serial_short: d
                 .property_value("ID_SERIAL_SHORT")
                 .map(|v| v.to_string_lossy().to_string()),
-            ID_VENDOR: d
+            id_vendor: d
                 .property_value("ID_VENDOR")
                 .map(|v| v.to_string_lossy().to_string()),
-            ID_VENDOR_ENC: d
+            id_vendor_enc: d
                 .property_value("ID_VENDOR_ENC")
                 .map(|v| v.to_string_lossy().to_string()),
-            ID_VENDOR_FROM_DATABASE: d
+            id_vendor_from_database: d
                 .property_value("ID_VENDOR_FROM_DATABASE")
                 .map(|v| v.to_string_lossy().to_string()),
-            ID_VENDOR_ID: d
+            id_vendor_id: d
                 .property_value("ID_VENDOR_ID")
                 .map(|v| v.to_string_lossy().to_string()),
-            PRODUCT: d
+            product: d
                 .property_value("PRODUCT")
                 .map(|v| v.to_string_lossy().to_string()),
             ..Default::default()
@@ -124,17 +125,17 @@ impl<'a> From<&'a Yaml> for UsbDevice {
             todo!("Handle Device::from<Yaml> with no name key")
         };
 
-        yaml_str!(device, yaml, ID_MODEL);
-        yaml_str!(device, yaml, ID_MODEL_ENC);
-        yaml_str!(device, yaml, ID_MODEL_FROM_DATABASE);
-        yaml_str!(device, yaml, ID_MODEL_ID);
-        yaml_str!(device, yaml, ID_VENDOR);
-        yaml_str!(device, yaml, ID_VENDOR_ENC);
-        yaml_str!(device, yaml, ID_VENDOR_FROM_DATABASE);
-        yaml_str!(device, yaml, ID_VENDOR_ID);
-        yaml_str!(device, yaml, ID_SERIAL);
-        yaml_str!(device, yaml, ID_SERIAL_SHORT);
-        yaml_str!(device, yaml, PRODUCT);
+        yaml_str!(device, yaml, id_model);
+        yaml_str!(device, yaml, id_model_enc);
+        yaml_str!(device, yaml, id_model_from_database);
+        yaml_str!(device, yaml, id_model_id);
+        yaml_str!(device, yaml, id_vendor);
+        yaml_str!(device, yaml, id_vendor_enc);
+        yaml_str!(device, yaml, id_vendor_from_database);
+        yaml_str!(device, yaml, id_vendor_id);
+        yaml_str!(device, yaml, id_serial);
+        yaml_str!(device, yaml, id_serial_short);
+        yaml_str!(device, yaml, product);
 
         device
     }
@@ -152,17 +153,17 @@ impl PartialEq<UsbDevice> for UsbDevice {
         };
 
         // We don't compare name because it's always none from one side or the other
-        cmp_ignore_none!(self, other, ID_MODEL);
-        cmp_ignore_none!(self, other, ID_MODEL_ENC);
-        cmp_ignore_none!(self, other, ID_MODEL_FROM_DATABASE);
-        cmp_ignore_none!(self, other, ID_MODEL_ID);
-        cmp_ignore_none!(self, other, ID_VENDOR);
-        cmp_ignore_none!(self, other, ID_VENDOR_ENC);
-        cmp_ignore_none!(self, other, ID_VENDOR_FROM_DATABASE);
-        cmp_ignore_none!(self, other, ID_VENDOR_ID);
-        cmp_ignore_none!(self, other, ID_SERIAL);
-        cmp_ignore_none!(self, other, ID_SERIAL_SHORT);
-        cmp_ignore_none!(self, other, PRODUCT);
+        cmp_ignore_none!(self, other, id_model);
+        cmp_ignore_none!(self, other, id_model_enc);
+        cmp_ignore_none!(self, other, id_model_from_database);
+        cmp_ignore_none!(self, other, id_model_id);
+        cmp_ignore_none!(self, other, id_vendor);
+        cmp_ignore_none!(self, other, id_vendor_enc);
+        cmp_ignore_none!(self, other, id_vendor_from_database);
+        cmp_ignore_none!(self, other, id_vendor_id);
+        cmp_ignore_none!(self, other, id_serial);
+        cmp_ignore_none!(self, other, id_serial_short);
+        cmp_ignore_none!(self, other, product);
 
         true
     }
@@ -177,17 +178,17 @@ mod tests {
         // More Specific
         let d1 = UsbDevice {
             name: Some("foo".into()),
-            ID_MODEL: Some("bar".into()),
-            ID_MODEL_ENC: Some("baz".into()),
-            ID_MODEL_FROM_DATABASE: Some("qux".into()),
-            ID_MODEL_ID: Some("foog".into()),
-            ID_SERIAL: Some("food".into()),
-            ID_SERIAL_SHORT: Some("fool".into()),
-            ID_VENDOR: Some("foob".into()),
-            ID_VENDOR_ENC: Some("foof".into()),
-            ID_VENDOR_FROM_DATABASE: Some("fooz".into()),
-            ID_VENDOR_ID: Some("fooq".into()),
-            PRODUCT: Some("foom".into()),
+            id_model: Some("bar".into()),
+            id_model_enc: Some("baz".into()),
+            id_model_from_database: Some("qux".into()),
+            id_model_id: Some("foog".into()),
+            id_serial: Some("food".into()),
+            id_serial_short: Some("fool".into()),
+            id_vendor: Some("foob".into()),
+            id_vendor_enc: Some("foof".into()),
+            id_vendor_from_database: Some("fooz".into()),
+            id_vendor_id: Some("fooq".into()),
+            product: Some("foom".into()),
         };
 
         // Less Specific
@@ -203,27 +204,27 @@ mod tests {
         // More Specific
         let d1 = UsbDevice {
             name: Some("foo".into()),
-            ID_MODEL: Some("bar".into()),
-            ID_MODEL_ENC: Some("baz".into()),
-            ID_MODEL_FROM_DATABASE: Some("qux".into()),
-            ID_MODEL_ID: Some("foog".into()),
-            ID_SERIAL: Some("food".into()),
-            ID_SERIAL_SHORT: Some("fool".into()),
-            ID_VENDOR: Some("foob".into()),
-            ID_VENDOR_ENC: Some("foof".into()),
-            ID_VENDOR_FROM_DATABASE: Some("fooz".into()),
-            ID_VENDOR_ID: Some("fooq".into()),
-            PRODUCT: Some("foom".into()),
+            id_model: Some("bar".into()),
+            id_model_enc: Some("baz".into()),
+            id_model_from_database: Some("qux".into()),
+            id_model_id: Some("foog".into()),
+            id_serial: Some("food".into()),
+            id_serial_short: Some("fool".into()),
+            id_vendor: Some("foob".into()),
+            id_vendor_enc: Some("foof".into()),
+            id_vendor_from_database: Some("fooz".into()),
+            id_vendor_id: Some("fooq".into()),
+            product: Some("foom".into()),
         };
 
         // Less Specific
         let d2 = UsbDevice {
             name: Some("foo".into()),
-            ID_MODEL_ENC: Some("baz".into()),
-            ID_MODEL_ID: Some("foog".into()),
-            ID_SERIAL: Some("food".into()),
-            ID_VENDOR_ENC: Some("foof".into()),
-            ID_VENDOR_ID: Some("fooq".into()),
+            id_model_enc: Some("baz".into()),
+            id_model_id: Some("foog".into()),
+            id_serial: Some("food".into()),
+            id_vendor_enc: Some("foof".into()),
+            id_vendor_id: Some("fooq".into()),
             ..Default::default()
         };
 
@@ -235,23 +236,23 @@ mod tests {
         // More Specific
         let d1 = UsbDevice {
             name: Some("foo".into()),
-            ID_MODEL: Some("bar".into()),
-            ID_MODEL_ENC: Some("baz".into()),
-            ID_MODEL_FROM_DATABASE: Some("qux".into()),
-            ID_MODEL_ID: Some("foog".into()),
-            ID_SERIAL: Some("food".into()),
-            ID_SERIAL_SHORT: Some("fool".into()),
-            ID_VENDOR: Some("foob".into()),
-            ID_VENDOR_ENC: Some("foof".into()),
-            ID_VENDOR_FROM_DATABASE: Some("fooz".into()),
-            ID_VENDOR_ID: Some("fooq".into()),
-            PRODUCT: Some("foom".into()),
+            id_model: Some("bar".into()),
+            id_model_enc: Some("baz".into()),
+            id_model_from_database: Some("qux".into()),
+            id_model_id: Some("foog".into()),
+            id_serial: Some("food".into()),
+            id_serial_short: Some("fool".into()),
+            id_vendor: Some("foob".into()),
+            id_vendor_enc: Some("foof".into()),
+            id_vendor_from_database: Some("fooz".into()),
+            id_vendor_id: Some("fooq".into()),
+            product: Some("foom".into()),
         };
 
         // Less Specific
         let d2 = UsbDevice {
             name: Some("foo".into()),
-            ID_MODEL: Some("bar".into()),
+            id_model: Some("bar".into()),
             ..Default::default()
         };
 
@@ -263,27 +264,27 @@ mod tests {
         // More Specific
         let d1 = UsbDevice {
             name: Some("foo".into()),
-            ID_MODEL: Some("bar".into()),
-            ID_MODEL_ENC: Some("baz".into()),
-            ID_MODEL_FROM_DATABASE: Some("qux".into()),
-            ID_MODEL_ID: Some("foog".into()),
-            ID_SERIAL: Some("food".into()),
-            ID_SERIAL_SHORT: Some("fool".into()),
-            ID_VENDOR: Some("foob".into()),
-            ID_VENDOR_ENC: Some("foof".into()),
-            ID_VENDOR_FROM_DATABASE: Some("fooz".into()),
-            ID_VENDOR_ID: Some("fooq".into()),
-            PRODUCT: Some("foom".into()),
+            id_model: Some("bar".into()),
+            id_model_enc: Some("baz".into()),
+            id_model_from_database: Some("qux".into()),
+            id_model_id: Some("foog".into()),
+            id_serial: Some("food".into()),
+            id_serial_short: Some("fool".into()),
+            id_vendor: Some("foob".into()),
+            id_vendor_enc: Some("foof".into()),
+            id_vendor_from_database: Some("fooz".into()),
+            id_vendor_id: Some("fooq".into()),
+            product: Some("foom".into()),
         };
 
         // Less Specific
         let d2 = UsbDevice {
             name: Some("foo".into()),
-            ID_MODEL_ENC: Some("baz".into()),
-            ID_MODEL_ID: Some("foog".into()),
-            ID_SERIAL: Some("food".into()),
-            ID_VENDOR_ENC: Some("foof".into()),
-            ID_VENDOR_ID: Some("fooq".into()),
+            id_model_enc: Some("baz".into()),
+            id_model_id: Some("foog".into()),
+            id_serial: Some("food".into()),
+            id_vendor_enc: Some("foof".into()),
+            id_vendor_id: Some("fooq".into()),
             ..Default::default()
         };
 
@@ -295,23 +296,23 @@ mod tests {
         // More Specific
         let d1 = UsbDevice {
             name: Some("foo".into()),
-            ID_MODEL: Some("bar".into()),
-            ID_MODEL_ENC: Some("baz".into()),
-            ID_MODEL_FROM_DATABASE: Some("qux".into()),
-            ID_MODEL_ID: Some("foog".into()),
-            ID_SERIAL: Some("food".into()),
-            ID_SERIAL_SHORT: Some("fool".into()),
-            ID_VENDOR: Some("foob".into()),
-            ID_VENDOR_ENC: Some("foof".into()),
-            ID_VENDOR_FROM_DATABASE: Some("fooz".into()),
-            ID_VENDOR_ID: Some("fooq".into()),
-            PRODUCT: Some("foom".into()),
+            id_model: Some("bar".into()),
+            id_model_enc: Some("baz".into()),
+            id_model_from_database: Some("qux".into()),
+            id_model_id: Some("foog".into()),
+            id_serial: Some("food".into()),
+            id_serial_short: Some("fool".into()),
+            id_vendor: Some("foob".into()),
+            id_vendor_enc: Some("foof".into()),
+            id_vendor_from_database: Some("fooz".into()),
+            id_vendor_id: Some("fooq".into()),
+            product: Some("foom".into()),
         };
 
         // Less Specific
         let d2 = UsbDevice {
             name: Some("baa".into()),
-            ID_SERIAL: Some("food".into()),
+            id_serial: Some("food".into()),
             ..Default::default()
         };
 
@@ -323,17 +324,17 @@ mod tests {
         // More Specific
         let d1 = UsbDevice {
             name: Some("foo".into()),
-            ID_MODEL: Some("bar".into()),
-            ID_MODEL_ENC: Some("baz".into()),
-            ID_MODEL_FROM_DATABASE: Some("qux".into()),
-            ID_MODEL_ID: Some("foog".into()),
-            ID_SERIAL: Some("food".into()),
-            ID_SERIAL_SHORT: Some("fool".into()),
-            ID_VENDOR: Some("foob".into()),
-            ID_VENDOR_ENC: Some("foof".into()),
-            ID_VENDOR_FROM_DATABASE: Some("fooz".into()),
-            ID_VENDOR_ID: Some("fooq".into()),
-            PRODUCT: Some("foom".into()),
+            id_model: Some("bar".into()),
+            id_model_enc: Some("baz".into()),
+            id_model_from_database: Some("qux".into()),
+            id_model_id: Some("foog".into()),
+            id_serial: Some("food".into()),
+            id_serial_short: Some("fool".into()),
+            id_vendor: Some("foob".into()),
+            id_vendor_enc: Some("foof".into()),
+            id_vendor_from_database: Some("fooz".into()),
+            id_vendor_id: Some("fooq".into()),
+            product: Some("foom".into()),
         };
 
         // Less Specific
@@ -346,17 +347,17 @@ mod tests {
     fn device_eq_one_empty_rev() {
         let d1 = UsbDevice {
             name: Some("foo".into()),
-            ID_MODEL: Some("bar".into()),
-            ID_MODEL_ENC: Some("baz".into()),
-            ID_MODEL_FROM_DATABASE: Some("qux".into()),
-            ID_MODEL_ID: Some("foog".into()),
-            ID_SERIAL: Some("food".into()),
-            ID_SERIAL_SHORT: Some("fool".into()),
-            ID_VENDOR: Some("foob".into()),
-            ID_VENDOR_ENC: Some("foof".into()),
-            ID_VENDOR_FROM_DATABASE: Some("fooz".into()),
-            ID_VENDOR_ID: Some("fooq".into()),
-            PRODUCT: Some("foom".into()),
+            id_model: Some("bar".into()),
+            id_model_enc: Some("baz".into()),
+            id_model_from_database: Some("qux".into()),
+            id_model_id: Some("foog".into()),
+            id_serial: Some("food".into()),
+            id_serial_short: Some("fool".into()),
+            id_vendor: Some("foob".into()),
+            id_vendor_enc: Some("foof".into()),
+            id_vendor_from_database: Some("fooz".into()),
+            id_vendor_id: Some("fooq".into()),
+            product: Some("foom".into()),
         };
 
         let d2 = UsbDevice::default();
@@ -384,32 +385,32 @@ mod tests {
     fn device_eq_match() {
         let d1 = UsbDevice {
             name: Some("foo".into()),
-            ID_MODEL: Some("bar".into()),
-            ID_MODEL_ENC: Some("baz".into()),
-            ID_MODEL_FROM_DATABASE: Some("qux".into()),
-            ID_MODEL_ID: Some("foog".into()),
-            ID_SERIAL: Some("food".into()),
-            ID_SERIAL_SHORT: Some("fool".into()),
-            ID_VENDOR: Some("foob".into()),
-            ID_VENDOR_ENC: Some("foof".into()),
-            ID_VENDOR_FROM_DATABASE: Some("fooz".into()),
-            ID_VENDOR_ID: Some("fooq".into()),
-            PRODUCT: Some("foom".into()),
+            id_model: Some("bar".into()),
+            id_model_enc: Some("baz".into()),
+            id_model_from_database: Some("qux".into()),
+            id_model_id: Some("foog".into()),
+            id_serial: Some("food".into()),
+            id_serial_short: Some("fool".into()),
+            id_vendor: Some("foob".into()),
+            id_vendor_enc: Some("foof".into()),
+            id_vendor_from_database: Some("fooz".into()),
+            id_vendor_id: Some("fooq".into()),
+            product: Some("foom".into()),
         };
 
         let d2 = UsbDevice {
             name: Some("foo".into()),
-            ID_MODEL: Some("bar".into()),
-            ID_MODEL_ENC: Some("baz".into()),
-            ID_MODEL_FROM_DATABASE: Some("qux".into()),
-            ID_MODEL_ID: Some("foog".into()),
-            ID_SERIAL: Some("food".into()),
-            ID_SERIAL_SHORT: Some("fool".into()),
-            ID_VENDOR: Some("foob".into()),
-            ID_VENDOR_ENC: Some("foof".into()),
-            ID_VENDOR_FROM_DATABASE: Some("fooz".into()),
-            ID_VENDOR_ID: Some("fooq".into()),
-            PRODUCT: Some("foom".into()),
+            id_model: Some("bar".into()),
+            id_model_enc: Some("baz".into()),
+            id_model_from_database: Some("qux".into()),
+            id_model_id: Some("foog".into()),
+            id_serial: Some("food".into()),
+            id_serial_short: Some("fool".into()),
+            id_vendor: Some("foob".into()),
+            id_vendor_enc: Some("foof".into()),
+            id_vendor_from_database: Some("fooz".into()),
+            id_vendor_id: Some("fooq".into()),
+            product: Some("foom".into()),
         };
 
         assert_eq!(d1, d2);
@@ -419,32 +420,32 @@ mod tests {
     fn device_eq_match_rev() {
         let d1 = UsbDevice {
             name: Some("foo".into()),
-            ID_MODEL: Some("bar".into()),
-            ID_MODEL_ENC: Some("baz".into()),
-            ID_MODEL_FROM_DATABASE: Some("qux".into()),
-            ID_MODEL_ID: Some("foog".into()),
-            ID_SERIAL: Some("food".into()),
-            ID_SERIAL_SHORT: Some("fool".into()),
-            ID_VENDOR: Some("foob".into()),
-            ID_VENDOR_ENC: Some("foof".into()),
-            ID_VENDOR_FROM_DATABASE: Some("fooz".into()),
-            ID_VENDOR_ID: Some("fooq".into()),
-            PRODUCT: Some("foom".into()),
+            id_model: Some("bar".into()),
+            id_model_enc: Some("baz".into()),
+            id_model_from_database: Some("qux".into()),
+            id_model_id: Some("foog".into()),
+            id_serial: Some("food".into()),
+            id_serial_short: Some("fool".into()),
+            id_vendor: Some("foob".into()),
+            id_vendor_enc: Some("foof".into()),
+            id_vendor_from_database: Some("fooz".into()),
+            id_vendor_id: Some("fooq".into()),
+            product: Some("foom".into()),
         };
 
         let d2 = UsbDevice {
             name: Some("foo".into()),
-            ID_MODEL: Some("bar".into()),
-            ID_MODEL_ENC: Some("baz".into()),
-            ID_MODEL_FROM_DATABASE: Some("qux".into()),
-            ID_MODEL_ID: Some("foog".into()),
-            ID_SERIAL: Some("food".into()),
-            ID_SERIAL_SHORT: Some("fool".into()),
-            ID_VENDOR: Some("foob".into()),
-            ID_VENDOR_ENC: Some("foof".into()),
-            ID_VENDOR_FROM_DATABASE: Some("fooz".into()),
-            ID_VENDOR_ID: Some("fooq".into()),
-            PRODUCT: Some("foom".into()),
+            id_model: Some("bar".into()),
+            id_model_enc: Some("baz".into()),
+            id_model_from_database: Some("qux".into()),
+            id_model_id: Some("foog".into()),
+            id_serial: Some("food".into()),
+            id_serial_short: Some("fool".into()),
+            id_vendor: Some("foob".into()),
+            id_vendor_enc: Some("foof".into()),
+            id_vendor_from_database: Some("fooz".into()),
+            id_vendor_id: Some("fooq".into()),
+            product: Some("foom".into()),
         };
 
         assert_eq!(d2, d1);

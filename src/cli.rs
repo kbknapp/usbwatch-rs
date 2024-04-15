@@ -1,77 +1,55 @@
-use std::path::PathBuf;
+mod check;
+mod listen;
+mod run;
+mod scan;
 
-use clap::{ArgAction, Args, Parser, Subcommand, ValueEnum};
+use std::env;
 
-use crate::usb::UsbEvent;
+use clap::{ArgAction, Parser, Subcommand, ValueEnum};
+
+use crate::ctx::Ctx;
+
+#[enum_delegate::register]
+pub trait Cmd {
+    fn update_ctx(&self, _ctx: &mut Ctx) -> anyhow::Result<()> { Ok(()) }
+    fn run(&self, _ctx: &mut Ctx) -> anyhow::Result<()> { Ok(()) }
+    fn next_cmd(&self) -> Option<&dyn Cmd> { None }
+}
+
+impl<'a> dyn Cmd + 'a {
+    pub fn walk_exec(&self, ctx: &mut Ctx) -> anyhow::Result<()> {
+        self.update_ctx(ctx)?;
+        self.run(ctx)?;
+        if let Some(c) = self.next_cmd() {
+            return c.walk_exec(ctx);
+        }
+        Ok(())
+    }
+}
 
 /// Monitor USB events and execute actions
 #[derive(Parser)]
 #[command(version = env!("VERSION_WITH_GIT_HASH"))]
-pub struct UsbWatchArgs {
+pub struct UsbWatch {
     /// Show verbose output
     #[arg(long, short, action = ArgAction::Count)]
     pub verbose: u8,
 
     #[command(subcommand)]
-    pub subcmd: Option<UsbWatchSubCmd>,
+    pub cmd: UsbWatchCmd,
 }
 
+impl Cmd for UsbWatch {
+    fn next_cmd(&self) -> Option<&dyn Cmd> { Some(&self.cmd) }
+}
+
+#[enum_delegate::implement(Cmd)]
 #[derive(Subcommand)]
-pub enum UsbWatchSubCmd {
-    /// Listen for events and display them to stdout
-    Listen(ListenArgs),
-
-    /// Begin matching against rules and running actions
-    Run(RunArgs),
-
-    /// List matched components from loaded rules
-    Check(CheckArgs),
-
-    /// Scan the currently attached devices and print their info
-    Scan(ScanArgs),
-}
-
-#[derive(Args, Copy, Clone, Debug)]
-pub struct ScanArgs {
-    /// Only display KIND of objects
-    #[arg(
-        long,
-        short,
-        value_enum,
-        value_name = "KIND",
-        default_value = "devices"
-    )]
-    pub scan_for: ForObject,
-    /// Display output in format
-    #[clap(
-        long,
-        short,
-        value_enum,
-        value_name = "FORMAT",
-        default_value = "raw",
-        alias = "output"
-    )]
-    pub format: OutFormat,
-}
-
-#[derive(Args, Copy, Clone, Debug)]
-pub struct ListenArgs {
-    /// Only display KIND of objects
-    #[arg(long, short, value_enum, value_name = "KIND", default_value = "all")]
-    pub listen_for: ForObject,
-    /// Only display KIND of events
-    #[arg(long, short, value_enum, value_name = "KIND", default_value = "all")]
-    pub events: UsbEvent,
-    /// Display output in format
-    #[arg(
-        long,
-        short,
-        value_enum,
-        value_name = "FORMAT",
-        default_value = "raw",
-        alias = "output"
-    )]
-    pub format: OutFormat,
+pub enum UsbWatchCmd {
+    Listen(listen::UsbWatchListen),
+    Run(run::UsbWatchRun),
+    Check(check::UsbWatchCheck),
+    Scan(scan::UsbWatchScan),
 }
 
 #[derive(ValueEnum, Copy, Clone, Debug, PartialEq)]
@@ -85,31 +63,4 @@ pub enum ForObject {
 pub enum OutFormat {
     Raw,
     Yaml,
-}
-
-#[derive(Args, Debug)]
-pub struct RunArgs {
-    /// Rules file to use
-    #[arg(long, short)]
-    pub rules: PathBuf,
-    /// Devices to match against
-    #[arg(long, short)]
-    pub devices: Option<PathBuf>,
-    /// Ports to match against
-    #[arg(long, short)]
-    pub ports: Option<PathBuf>,
-}
-
-#[derive(Args, Debug)]
-#[command(visible_aliases = &["test", "debug"])]
-pub struct CheckArgs {
-    /// Rules file to use
-    #[arg(long, short)]
-    pub rules: Option<PathBuf>,
-    /// Devices to match against
-    #[arg(long, short)]
-    pub devices: Option<PathBuf>,
-    /// Ports to match against
-    #[arg(long, short)]
-    pub ports: Option<PathBuf>,
 }

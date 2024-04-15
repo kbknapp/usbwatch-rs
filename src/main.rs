@@ -1,10 +1,7 @@
-#![allow(non_snake_case)]
-#![warn(rust_2018_idioms, future_incompatible)]
-
 #[macro_use]
 mod macros;
 mod cli;
-mod cmds;
+mod ctx;
 mod listener;
 mod rule;
 mod shutdown;
@@ -16,11 +13,15 @@ mod usb;
 use std::env;
 
 use clap::*;
+use tracing::error;
 
-pub fn main() {
-    use cli::UsbWatchSubCmd::*;
+use crate::{
+    cli::{Cmd, UsbWatch},
+    ctx::Ctx,
+};
 
-    let args = cli::UsbWatchArgs::parse();
+fn main() {
+    let args = UsbWatch::parse();
 
     match args.verbose {
         0 => (),
@@ -31,11 +32,12 @@ pub fn main() {
 
     tracing_subscriber::fmt::init();
 
-    match args.subcmd {
-        Some(Listen(a)) => cmds::listen::run(a),
-        Some(Run(a)) => cmds::run::run(a),
-        Some(Check(a)) => cmds::check::run(a),
-        Some(Scan(a)) => cmds::scan::run(a),
-        None => todo!("Impl no subcommand"),
+    let mut ctx = Ctx;
+    let cmd: &dyn Cmd = &args;
+
+    if let Err(e) = cmd.walk_exec(&mut ctx) {
+        error!("{e}");
+        eprintln!("error: {e}");
+        std::process::exit(1);
     }
 }

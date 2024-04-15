@@ -21,8 +21,10 @@ readme = "README.md"
 rust-version = "1.74.1"
 
 [dependencies]
+anyhow = "1.0.82"
 bitflags = "2.5.0"
 clap = {version ="4.5.0", features = ["derive"]}
+enum_delegate = "0.2.0"
 futures-core = "0.3.12"
 parking_lot = "0.12.1"
 serde = { version = "1.0.190", features = ["derive"] }
