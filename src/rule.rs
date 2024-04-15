@@ -61,7 +61,7 @@ impl<'a> From<&'a Yaml> for Rule {
         let m = if !yaml_match.is_badvalue() {
             Match::from(yaml_match)
         } else {
-            todo!("handle no match key when deserializing rule from yaml")
+            cli_bail!("failed to parse YAML for Rule; missing required 'match' key");
         };
 
         let command_shell = if let Some(s) = yaml["command_shell"].as_str() {
@@ -74,7 +74,7 @@ impl<'a> From<&'a Yaml> for Rule {
         let command: String = if let Some(c) = yaml["command"].as_str() {
             c.into()
         } else {
-            todo!("Handle no command key in Rule::from<Yaml>")
+            cli_bail!("failed to parse YAML for Rule; missing required 'command' key");
         };
 
         Rule {

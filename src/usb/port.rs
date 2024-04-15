@@ -97,7 +97,7 @@ impl<'a> From<&'a Yaml> for UsbPort {
         let mut port = if let Some(name) = yaml["name"].as_str() {
             UsbPort::new(name)
         } else {
-            todo!("Handle Port::from<Yaml> with no name key")
+            cli_bail!("failed to parse YAML for port; missing required 'name' key");
         };
 
         yaml_str!(port, yaml, syspath);

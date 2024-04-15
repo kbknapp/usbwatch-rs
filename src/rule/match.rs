@@ -97,7 +97,7 @@ impl<'a> From<&'a Yaml> for Match {
         let mut m = if let Some(on_event) = yaml["on"].as_str() {
             Match::new(on_event.parse().unwrap())
         } else {
-            todo!("Handle Match::from<Yaml> with no on key")
+            cli_bail!("failed to parse YAML for Rule; missing required 'on' key");
         };
 
         if let Some(devices) = yaml["devices"].as_vec() {
@@ -133,7 +133,7 @@ impl<'a> From<&'a Yaml> for Match {
                         m.devices.push(UsbDevice::new(name));
                     }
                 } else {
-                    todo!("Handle deserialize devices with bad key")
+                    cli_bail!("failed to pares YAML for Match; missing 'devices' key");
                 }
             }
             for ignore_dev in to_ignore.into_iter() {
@@ -168,7 +168,7 @@ impl<'a> From<&'a Yaml> for Match {
                     m.ports.push(UsbPort::new(name));
                     // @TODO: will need to handle lookup of name / merge
                 } else {
-                    todo!("Handle deserialize ports with bad key")
+                    cli_bail!("failed to parse YAML for Match; missing 'include_ports' key");
                 }
             }
         }

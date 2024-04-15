@@ -122,7 +122,7 @@ impl<'a> From<&'a Yaml> for UsbDevice {
         let mut device = if let Some(name) = yaml["name"].as_str() {
             UsbDevice::new(name)
         } else {
-            todo!("Handle Device::from<Yaml> with no name key")
+            cli_bail!("faild to parse YAML for Device; missing required 'name' key");
         };
 
         yaml_str!(device, yaml, id_model);

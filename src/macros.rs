@@ -17,3 +17,10 @@ macro_rules! cmp_ignore_none {
         }
     };
 }
+
+macro_rules! cli_bail {
+    ($msg:expr) => {
+        eprintln!("error: {}", $msg);
+        std::process::exit(1);
+    };
+}
