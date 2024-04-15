@@ -18,6 +18,7 @@ keywords = [
 ]
 categories = ["command-line-utilities"]
 readme = "README.md"
+rust-version = "1.64.0"
 
 [dependencies]
 bitflags = "2.2.1"
