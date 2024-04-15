@@ -2,7 +2,7 @@
 name = "usbwatch"
 version = "0.0.3"
 authors = ["Kevin K. <kbknapp@gmail.com>"]
-edition = "2018"
+edition = "2021"
 license = "MIT OR Apache-2.0"
 include = [
 	"src/**/*",
