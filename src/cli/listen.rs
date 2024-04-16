@@ -49,6 +49,9 @@ impl Cmd for UsbWatchListen {
     }
 
     fn run(&self, ctx: &mut Ctx) -> anyhow::Result<()> {
+        if self.output.is_some() {
+            cli_println!("Listening for udev events...");
+        }
         tokio::runtime::Builder::new_current_thread()
             .enable_io()
             .build()

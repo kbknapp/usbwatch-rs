@@ -1,16 +1,22 @@
 mod device;
 mod port;
 
-use std::str::FromStr;
+use std::result::Result as StdResult;
 
 use clap::ValueEnum;
-use serde::{ser::Serializer, Deserialize, Serialize};
+use serde::{
+    de::{self, Deserializer},
+    ser::Serializer,
+    Deserialize, Serialize,
+};
+use strum::{Display, EnumString};
 use tokio_udev::EventType;
 
 pub use device::{UsbDevice, UsbDevices};
 pub use port::{UsbPort, UsbPorts};
 
-#[derive(ValueEnum, Copy, Clone, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Default, EnumString, Display, ValueEnum, Copy, Clone, PartialEq, Eq, Debug, Serialize)]
+#[strum(ascii_case_insensitive, serialize_all = "lowercase")]
 pub enum UsbEvent {
     Add,
     Bind,
@@ -18,7 +24,15 @@ pub enum UsbEvent {
     Remove,
     Change,
     Unknown,
+    #[default]
     All,
+}
+
+impl<'de> Deserialize<'de> for UsbEvent {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> StdResult<Self, D::Error> {
+        let s = <String>::deserialize(deserializer)?;
+        UsbEvent::from_str(&s, true).map_err(de::Error::custom)
+    }
 }
 
 impl From<tokio_udev::EventType> for UsbEvent {
@@ -30,19 +44,6 @@ impl From<tokio_udev::EventType> for UsbEvent {
             EventType::Unknown => UsbEvent::Unknown,
             EventType::Bind => UsbEvent::Bind,
             EventType::Unbind => UsbEvent::Unbind,
-        }
-    }
-}
-
-impl FromStr for UsbEvent {
-    type Err = &'static str;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match &*s.to_ascii_lowercase() {
-            "add" => Ok(UsbEvent::Add),
-            "remove" => Ok(UsbEvent::Remove),
-            "all" => Ok(UsbEvent::All),
-            _ => Err("Invalid event type"),
         }
     }
 }

@@ -1,5 +1,6 @@
 mod check;
 mod listen;
+mod rule;
 mod run;
 mod scan;
 
@@ -99,6 +100,7 @@ pub enum UsbWatchCmd {
     Run(run::UsbWatchRun),
     Check(check::UsbWatchCheck),
     Scan(scan::UsbWatchScan),
+    CreateRule(rule::UsbWatchCreateRule),
 }
 
 #[derive(ValueEnum, Copy, Clone, Debug, PartialEq)]

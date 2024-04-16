@@ -31,7 +31,9 @@ impl Match {
         let span = span!(Level::TRACE, "fn device_ignored", %device);
         let _enter = span.enter();
 
+        debug!(device = ?device, "found device details");
         for (i, dev) in self.devices.iter().enumerate() {
+            debug!(device = ?dev, "known device details");
             if dev == device {
                 debug!(ignored = ?self.ignore_devices.contains(&i), index = %i, "Matched device");
                 return self.ignore_devices.contains(&i);
