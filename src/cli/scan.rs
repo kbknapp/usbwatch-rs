@@ -21,22 +21,11 @@ pub struct UsbWatchScan {
         value_name = "KIND",
         default_value = "devices"
     )]
-    pub scan_for: ForObject,
-
-    /// Display output in format
-    #[clap(
-        long,
-        short,
-        value_enum,
-        value_name = "FORMAT",
-        default_value = "raw",
-        alias = "output"
-    )]
-    pub format: OutFormat,
+    pub only: ForObject,
 }
 
 impl Cmd for UsbWatchScan {
-    fn run(&self, _ctx: &mut Ctx) -> anyhow::Result<()> {
+    fn run(&self, ctx: &mut Ctx) -> anyhow::Result<()> {
         let mut scanner = Enumerator::new().unwrap();
         scanner.match_subsystem("usb").unwrap();
 
@@ -57,17 +46,17 @@ impl Cmd for UsbWatchScan {
             }
         }
 
-        match self.format {
+        match ctx.format {
             OutFormat::Raw => {
-                if self.scan_for == ForObject::Ports || self.scan_for == ForObject::All {
+                if self.only == ForObject::Ports || self.only == ForObject::All {
                     cli_println!("{:#?}", ports);
                 }
-                if self.scan_for == ForObject::Devices || self.scan_for == ForObject::All {
+                if self.only == ForObject::Devices || self.only == ForObject::All {
                     cli_println!("{:#?}", devices);
                 }
             }
             OutFormat::Yaml => {
-                if self.scan_for == ForObject::Ports || self.scan_for == ForObject::All {
+                if self.only == ForObject::Ports || self.only == ForObject::All {
                     cli_println!("---\nports:");
                     for port in ports {
                         print!("  - ");
@@ -81,7 +70,7 @@ impl Cmd for UsbWatchScan {
                         }
                     }
                 }
-                if self.scan_for == ForObject::Devices || self.scan_for == ForObject::All {
+                if self.only == ForObject::Devices || self.only == ForObject::All {
                     cli_println!("---\ndevices:");
                     for device in devices {
                         print!("  - ");

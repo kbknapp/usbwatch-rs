@@ -34,20 +34,10 @@ pub struct UsbWatchListen {
     /// Only listen for N events and exit (0 is infinite)
     #[arg(long, short, value_name = "N", default_value = "0")]
     pub num_events: usize,
-
-    /// Display output in format
-    #[arg(
-        short = 'F',
-        long,
-        value_enum,
-        value_name = "FORMAT",
-        default_value = "raw"
-    )]
-    pub format: OutFormat,
 }
 
 impl Cmd for UsbWatchListen {
-    fn run(&self, _ctx: &mut Ctx) -> anyhow::Result<()> {
+    fn run(&self, ctx: &mut Ctx) -> anyhow::Result<()> {
         tokio::runtime::Builder::new_current_thread()
             .enable_io()
             .build()
@@ -73,7 +63,6 @@ impl Cmd for UsbWatchListen {
                         shutdown_complete_tx,
                         shutdown_complete_rx,
                         udev_event_rx,
-                        args: self,
                     };
 
                     tokio::select! {
@@ -82,18 +71,18 @@ impl Cmd for UsbWatchListen {
                                 cli_error!("listener failed; {}", err);
                             }
                         }
-                        res = handler.run() => {
+                        res = handler.run(self, ctx) => {
                             if let Err(err) = res {
                                 cli_error!("handler failed; {}", err);
                             }
                         }
                         _ = sighup.recv() => {
                             // SIGHUP has been received.
-                            cli_println!("SIGHUP received; reloading");
+                            cli_eprintln!("SIGHUP received; reloading");
                         }
                         _ = sigint.recv() => {
                             // SIGINT has been received.
-                            cli_println!("SIGINT received; shutting down");
+                            cli_eprintln!("SIGINT received; shutting down");
                             break;
                         }
                     };
@@ -125,16 +114,19 @@ impl Cmd for UsbWatchListen {
     }
 }
 
-struct Handler<'a> {
+struct Handler {
     notify_shutdown: broadcast::Sender<()>,
     shutdown_complete_tx: mpsc::Sender<()>,
     shutdown_complete_rx: mpsc::Receiver<()>,
     udev_event_rx: broadcast::Receiver<UdevEvent>,
-    args: &'a UsbWatchListen,
 }
 
-impl<'a> Handler<'a> {
-    async fn run(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+impl Handler {
+    async fn run(
+        &mut self,
+        args: &UsbWatchListen,
+        ctx: &Ctx,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let shutdown = Shutdown::new(self.notify_shutdown.subscribe());
         tokio::pin!(shutdown);
 
@@ -145,12 +137,12 @@ impl<'a> Handler<'a> {
                     return Ok(());
                 }
             };
-            cli_println!("Received udev event");
+            cli_debugln!("Received udev event");
 
             cli_debug!("Checking if event type qualifies for printing...");
-            if self.args.event == event.event_kind || self.args.event == UsbEvent::All {
+            if args.event == event.event_kind || args.event == UsbEvent::All {
                 cli_debugln!("Yes");
-                self.print(event).await;
+                print_event(event, args, ctx).await;
             } else {
                 cli_debugln!("No");
             }
@@ -158,38 +150,38 @@ impl<'a> Handler<'a> {
 
         Ok(())
     }
+}
 
-    async fn print(&self, udev_dev: UdevEvent) {
-        match self.args.format {
-            OutFormat::Raw => {
-                if self.args.only == ForObject::Ports || self.args.only == ForObject::All {
-                    cli_println!("{:#?}", udev_dev.port);
-                }
-                if self.args.only == ForObject::Devices || self.args.only == ForObject::All {
-                    cli_println!("{:#?}", udev_dev.device);
-                }
+async fn print_event(udev_dev: UdevEvent, args: &UsbWatchListen, ctx: &Ctx) {
+    match ctx.format {
+        OutFormat::Raw => {
+            if args.only == ForObject::Ports || args.only == ForObject::All {
+                cli_println!("{:#?}", udev_dev.port);
             }
-            OutFormat::Yaml => {
-                if self.args.only == ForObject::Ports || self.args.only == ForObject::All {
-                    cli_print!("---\nports:\n  - ");
-                    let yaml = serde_yaml::to_string(&udev_dev.port).unwrap();
-                    for (i, line) in yaml.lines().skip(1).enumerate() {
-                        if i == 0 {
-                            cli_println!("{}", line);
-                        } else {
-                            cli_println!("    {}", line);
-                        }
+            if args.only == ForObject::Devices || args.only == ForObject::All {
+                cli_println!("{:#?}", udev_dev.device);
+            }
+        }
+        OutFormat::Yaml => {
+            if args.only == ForObject::Ports || args.only == ForObject::All {
+                cli_print!("---\nports:\n  - ");
+                let yaml = serde_yaml::to_string(&udev_dev.port).unwrap();
+                for (i, line) in yaml.lines().skip(1).enumerate() {
+                    if i == 0 {
+                        cli_println!("{}", line);
+                    } else {
+                        cli_println!("    {}", line);
                     }
                 }
-                if self.args.only == ForObject::Devices || self.args.only == ForObject::All {
-                    cli_print!("---\ndevices:\n  - ");
-                    let yaml = serde_yaml::to_string(&udev_dev.device).unwrap();
-                    for (i, line) in yaml.lines().skip(1).enumerate() {
-                        if i == 0 {
-                            cli_println!("{}", line);
-                        } else {
-                            cli_println!("    {}", line);
-                        }
+            }
+            if args.only == ForObject::Devices || args.only == ForObject::All {
+                cli_print!("---\ndevices:\n  - ");
+                let yaml = serde_yaml::to_string(&udev_dev.device).unwrap();
+                for (i, line) in yaml.lines().skip(1).enumerate() {
+                    if i == 0 {
+                        cli_println!("{}", line);
+                    } else {
+                        cli_println!("    {}", line);
                     }
                 }
             }

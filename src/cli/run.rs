@@ -193,7 +193,7 @@ impl Handler {
                 }
             };
 
-            info!(event = ?event.event_kind, "Received udev event");
+            debug!(event = ?event.event_kind, "Received udev event");
 
             {
                 debug!("Updating State");

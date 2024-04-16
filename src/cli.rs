@@ -9,7 +9,7 @@ use clap::{ArgAction, Parser, Subcommand, ValueEnum};
 
 use crate::{
     ctx::Ctx,
-    printer::{ColorChoice, Printer},
+    printer::{ColorChoice, OutFormat, Printer},
 };
 
 #[enum_delegate::register]
@@ -52,12 +52,23 @@ pub struct UsbWatch {
     pub quiet: u8,
 
     /// Should the output include color?
-    #[arg(short, long, value_enum, value_name = "WHEN", default_value = "auto", overrides_with_all = ["color", "no_color"], global = true)]
+    #[arg(long, value_enum, value_name = "WHEN", default_value = "auto", overrides_with_all = ["color", "no_color"], global = true)]
     pub color: ColorChoice,
 
     /// Do not color output (alias for --color=never)
-    #[arg(short, long, overrides_with_all = ["color", "no_color"], global = true)]
+    #[arg(long, overrides_with_all = ["color", "no_color"], global = true)]
     pub no_color: bool,
+
+    /// Display output in format
+    #[arg(
+        short = 'F',
+        long,
+        value_enum,
+        value_name = "FORMAT",
+        default_value = "yaml",
+        global = true
+    )]
+    pub format: OutFormat,
 
     #[command(subcommand)]
     pub cmd: UsbWatchCmd,
@@ -66,6 +77,7 @@ pub struct UsbWatch {
 impl Cmd for UsbWatch {
     fn update_ctx(&self, ctx: &mut Ctx) -> anyhow::Result<()> {
         ctx.verbose = self.verbose;
+        ctx.format = self.format;
 
         Ok(())
     }
