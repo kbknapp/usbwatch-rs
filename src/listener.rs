@@ -2,7 +2,7 @@ use std::ffi::OsStr;
 
 use tokio::sync::{broadcast, mpsc};
 use tokio_stream::StreamExt;
-use tokio_udev::{self, AsyncMonitorSocket, EventType};
+use tokio_udev::{AsyncMonitorSocket, EventType};
 use tracing::error;
 
 use crate::{shutdown::Shutdown, udev::UdevEvent};

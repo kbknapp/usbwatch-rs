@@ -787,7 +787,7 @@ checksum = "673aac59facbab8a9007c7f6108d11f63b603f7cabff99fabf650fea5c32b861"
 
 [[package]]
 name = "usbwatch"
-version = "0.0.3"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "bitflags 2.5.0",

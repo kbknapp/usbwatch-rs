@@ -4,7 +4,7 @@ use std::{
 };
 
 use clap::Args;
-use tracing::{self, warn};
+use tracing::warn;
 use yaml_rust::YamlLoader;
 
 use crate::{

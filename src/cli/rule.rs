@@ -4,12 +4,8 @@ use clap::Args;
 use serde::Serialize;
 
 use crate::{
-    cli::{Cmd, ForObject},
+    cli::{Cmd},
     ctx::Ctx,
-    listener::UdevListener,
-    printer::OutFormat,
-    shutdown::Shutdown,
-    udev::UdevEvent,
     usb::UsbEvent,
 };
 

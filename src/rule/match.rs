@@ -1,7 +1,7 @@
 use std::{fmt::Debug, fs::File};
 
 use serde::Serialize;
-use tracing::{self, debug, span, trace, Level};
+use tracing::{debug, span, trace, Level};
 use yaml_rust::Yaml;
 
 use crate::{

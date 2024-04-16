@@ -4,7 +4,7 @@ use std::{
     path::Path,
 };
 
-use tracing::{self, debug, info, span, Level};
+use tracing::{debug, info, span, Level};
 use yaml_rust::YamlLoader;
 
 use crate::{

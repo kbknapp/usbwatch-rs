@@ -3,12 +3,11 @@ use std::{env, path::PathBuf, process::Stdio, sync::Arc};
 use clap::Args;
 use parking_lot::Mutex;
 use tokio::{
-    io::AsyncWriteExt,
     process::Command,
     signal::unix::{signal, SignalKind},
     sync::{broadcast, mpsc},
 };
-use tracing::{self, debug, error, info, span, Level};
+use tracing::{debug, error, info, span, Level};
 
 use crate::{
     cli::Cmd, ctx::Ctx, listener::UdevListener, shutdown::Shutdown, state::State, udev::UdevEvent,

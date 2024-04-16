@@ -3,7 +3,7 @@ mod r#match;
 use std::{fmt::Debug, path::PathBuf};
 
 use serde::Serialize;
-use tracing::{self, debug, span, Level};
+use tracing::{debug, span, Level};
 use yaml_rust::Yaml;
 
 use crate::udev::UdevEvent;
