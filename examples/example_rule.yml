@@ -43,10 +43,11 @@ rules:
         - name: "My other port"
           ID_PATH: "pci-0000:00:14.0-usb-0:1"
 
-    # Default command shell is /bin/bash, but can be overridden
+    # Default command shell is /bin/sh, but can be overridden so long as `-c
+    # "cmd"` argument is valid
     #
     # The "command:" will be provided to the shell as an input argument
-    # i.e. /bin/bash $command_file
+    # i.e. /bin/sh -c "$command_file"
     command_shell: /bin/bash
 
     # Will be saved as a temporary file and execute with the command_shell:

@@ -1,14 +1,13 @@
-use std::{path::PathBuf, process::Stdio, sync::Arc};
+use std::{env, path::PathBuf, process::Stdio, sync::Arc};
 
 use clap::Args;
 use parking_lot::Mutex;
 use tokio::{
-    io::AsyncWriteExt,
     process::Command,
     signal::unix::{signal, SignalKind},
     sync::{broadcast, mpsc},
 };
-use tracing::{self, debug, error, info, span, Level};
+use tracing::{debug, error, info, span, Level};
 
 use crate::{
     cli::Cmd, ctx::Ctx, listener::UdevListener, shutdown::Shutdown, state::State, udev::UdevEvent,
@@ -30,7 +29,23 @@ pub struct UsbWatchRun {
 }
 
 impl Cmd for UsbWatchRun {
-    fn run(&self, _ctx: &mut Ctx) -> anyhow::Result<()> {
+    fn update_ctx(&self, ctx: &mut Ctx) -> anyhow::Result<()> {
+        ctx.tracing = true;
+        Ok(())
+    }
+
+    fn run(&self, ctx: &mut Ctx) -> anyhow::Result<()> {
+        // SAFETY: the program is single threaded at this point so no other threads are
+        // currently reading or writing to the environment.
+        match ctx.verbose {
+            0 => (),
+            1 => env::set_var("RUST_LOG", "usbwatch=info"),
+            2 => env::set_var("RUST_LOG", "usbwatch=debug"),
+            _ => env::set_var("RUST_LOG", "usbwatch=trace"),
+        }
+
+        tracing_subscriber::fmt::init();
+
         tokio::runtime::Builder::new_current_thread()
             .enable_io()
             .build()
@@ -139,18 +154,12 @@ async fn exec(cmd: String, shell: PathBuf) -> Result<(), ()> {
 
     debug!("Executing command");
     let mut child = Command::new(&shell)
+        .arg("-c")
+        .arg(cmd)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()
         .expect("Failed to spawn child process");
-
-    {
-        let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-        stdin
-            .write_all(cmd.as_bytes())
-            .await
-            .expect("Failed to write to stdin");
-    }
 
     info!("Executing command");
     debug!("Waiting for child to exit");
@@ -183,7 +192,7 @@ impl Handler {
                 }
             };
 
-            info!(event = ?event.event_kind, "Received udev event");
+            debug!(event = ?event.event_kind, "Received udev event");
 
             {
                 debug!("Updating State");

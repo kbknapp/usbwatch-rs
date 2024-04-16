@@ -4,7 +4,7 @@ use std::{
 };
 
 use clap::Args;
-use tracing::{self, warn};
+use tracing::warn;
 use yaml_rust::YamlLoader;
 
 use crate::{
@@ -37,19 +37,19 @@ impl Cmd for UsbWatchCheck {
         if let Some(path) = &self.devices {
             let file = File::open(path).unwrap();
             let devices: UsbDevices = serde_yaml::from_reader(file).unwrap();
-            println!("{:#?}", devices);
+            cli_println!("{:#?}", devices);
         }
 
         if let Some(path) = &self.ports {
             let file = File::open(path).unwrap();
             let ports: UsbPorts = serde_yaml::from_reader(file).unwrap();
-            println!("{:#?}", ports);
+            cli_println!("{:#?}", ports);
         }
 
         if let Some(path) = &self.rules {
             let buf = fs::read_to_string(path).unwrap();
             let rules = Rules::from(&YamlLoader::load_from_str(&buf).unwrap()[0]);
-            println!("{:#?}", rules);
+            cli_println!("{:#?}", rules);
         }
         Ok(())
     }

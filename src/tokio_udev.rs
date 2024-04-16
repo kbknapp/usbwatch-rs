@@ -1,6 +1,6 @@
 use std::fmt;
 
-use tokio_udev::{self, Device};
+use tokio_udev::Device;
 
 pub struct DebugDevice {
     dev: Device,

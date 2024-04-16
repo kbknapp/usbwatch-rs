@@ -11,6 +11,9 @@ Monitor USB events and execute actions based on rules.
 <!-- vim-markdown-toc GFM -->
 
 * [Example](#example)
+    * [Defining Devices](#defining-devices)
+    * [Defining Rules](#defining-rules)
+    * [Running](#running)
 * [Contributing](#contributing)
 * [License](#license)
         * [Contribution](#contribution)
@@ -24,55 +27,72 @@ At runtime, you tell `usbwatch` which rule sets to utilize.
 
 # Example
 
-In this example we use `usbwatch` to create a *device*, and execute an `echo`
-command depending on if the device was plugged in (`add` event), or unplugged
-(`remove` event). In a real world scenario, you may want to run a shell script
-instead of just a simple `echo` command.
+In this example we use `usbwatch` to execute an `echo` command depending on if
+the device was plugged in (`add` event), or unplugged (`remove` event). In a
+real world scenario, you may want to run a shell script instead of just a
+simple `echo` command.
 
-First, if we don't already have the device details handy, we can use `usbwatch
-listen` to display events and manually record the appropriate details.
+## Defining Devices
 
-However, if we don't want to see all events, devices, and ports we can use a
-more targeted `usbwatch create-device` command to listen for only a single
-device event and write the file for us.
+First, we need a file describing either the *port* or *device* we'd like to act
+on. We do this by creating YAML files with the relevant details to match on. In
+this example we'll only be matching on the *device*.
 
-It's best to start with the target USB device unplugged, as the `remove` event
-carries very few details about the device that was unplugged 
+If we don't already have the device details handy, we can use `usbwatch
+listen` to display events and record the appropriate details.
+
+The `usbwatch listen` command will show all device and port events as they
+happen, but we're only interested in one device, so we'll add the
+`--num-events=1` argument will tell the `usbwatch listen` command to exit after
+it sees the first event.
+
+It's best to start with the target USB device already unplugged, as the
+`remove` event carries very few details about the device that was unplugged.
 
 > **Note**
 > Internally `usbwatch` can utilize the more detailed "add" information even on
 > a "remove" event because it keeps state of which devices are plugged
 > in to which ports, however it can only record this state if it sees the
-> initial `add` event for the device). 
+> initial `add` event for the device).
 
-Once we tell `usbwatch` to listen, we plug in the device to cause an event. We
-also need to provide a file to save our device info to, here we use
-`ex1.device`. The name is arbitrary, and just serves as a human readable ID
-which can use later to reference this device by.
+Once we tell `usbwatch` to listen, we plug in the target device to cause an
+event.
 
-``` sh
-$ usbwatch create-device --output ex1.yml --name "My Cruzer"
+If we include the `--output` argument then `usbwatch` will save our device
+info. Here we use `ex1.yml`. The name of the file is arbitrary and just serves
+to reference this device by when writing rules.
+
+> **NOTE**
+> In more advanced rules we can have human readable names that serve as
+> identifies to individual devices and ports by manually adding a `name: foo`
+> key to either the port or device definition. This example does not do that
+> for simplicity.
+
+```sh
+$ usbwatch listen \
+    --only devices \
+    --output ex1.yml \
+    --num-events 1
+
   Listening for device events...
 ```
 
 Now either plug in, or unplug the device.
 
-``` sh
-  Listening for device events...
-  Found one device
-  Saving information to ex1.yml
+```sh
+  Listening for udev events...
+  Received 1 event...
+  Writing output to ex1.yml
 $ ls
 ex1.yml
 ```
 
-The devices file could be written by hand as well, as this is what our devices
-file looks like:
+This is what our devices file looks like:
 
-```
+```yaml
 ---
 devices:
-  - name: "My Cruzer"
-    ID_MODEL: 'Ultra_Fit'
+  - ID_MODEL: 'Ultra_Fit'
     ID_MODEL_ENC: "Ultra\\x20Fit"
     ID_MODEL_FROM_DATABASE: "Ultra Fit"
     ID_MODEL_ID: "5583"
@@ -85,58 +105,68 @@ devices:
     PRODUCT: "781/5583/100"
 ```
 
-We could place other devices in the same file if we wanted to *any* of the
-devices in that file against a rule.
+We could place other devices in the same file if we wanted to match on *any* of
+the devices in that file against a rule.
 
 Additionally, we could omit or remove any of the fields in the devices field, if
 we wished to be *less* specific. I.e. if we wanted to match *all* `SanDisk`
 devices, we could remove all fields except `ID_VENDOR`.
 
-Now we can create a rule using this device. We can either write the rule in a
-text document by hand, or use the CLI. In this example we'll use the CLI, but
-then show what the plain text rule looks like.
+## Defining Rules
 
-``` sh
+Now we can create a rule using the device we enumerated above. We can either
+write the rule in a text document by hand, or use the CLI. In this example
+we'll use the CLI, but then show what the plain text rule looks like.
+
+```sh
 $ usbwatch create-rule \
   --name "Example Cruzer Connect"
   --devices-file ex1.yml \
   --on add \
-  --execute "echo 'Example was plugged in!'" > ex1_connect.yml
+  --execute 'echo "Example was plugged in!" >> usb.log' > ex1_connect.yml
 ```
 
-We can view the rule, and even make changes by hand if we needed to. 
+We can view the rule, and even make changes by hand if we needed to.
 
-``` sh
-$ cat ex1_connect.yml
+```yaml
 ---
 rules:
   - name: "Example Cruzer Connect"
-    match:
-      on: add 
-      devices: 
-        - ex1.yml
     command: "echo 'Example was plugged in!' >> usb.log"
+    match:
+      on: add
+      devices:
+      - include_devices: ex1.yml
 ```
 
-> **Warning** 
+> **Warning**
 > If you have `usbwatch` running as `root` in a service such as via systemd,
-> the `.yml` rules files should only be writable by `root` (permissions `600`
+> the `.yml` rules files should only be writable by `root` (permissions `0600`
 > owned by `root:root`), otherwise you're giving `root` access to anyone who
 > can write to these files and cause a USB event to occur.
 
-Our example matches just the single device when connected to *any* port. In the
-rule file, the device information is pulled from the file we created earlier,
-however we could also have included the device information inline. If `usbwatch
-run --devices ex1.yml` is used to load a devices file, we could also have just
-referenced the device by name `"My Cruzer"`.
+In the rule file, the device information is pulled from the file we created
+earlier, however we could also have included the device information inline
+instead.
 
-If we had wanted to match just this one device on a specific port, similar steps
-could be followed using the `create-port` subcommand, or manually copying the
-information from the `listen` subcommand.
+> **NOTE**
+> Our example matches just the single device when connected to *any* port.
+> However, had we created a ports file in a similar manner to the devices file,
+> we could use the `--ports` flag on `usbwatch create-rule` to limit which
+> ports are matched. This would have added a `ports:` key to the YAML file.
 
-In order to run our rule, we use `usbwatch run --rules ex1_connect.yml`. You
-should now see a new file created `usb.log` with a new line each time you plug
-in that device to any port.
+## Running
+
+Now that we've defined the *devices* and the *rules* we can pass these to the
+`usbwatch run` command via thier respective arguments.
+
+```sh
+$ usbwatch run --rules ex1_connect.yml --devices ex1.yml
+```
+
+You should now see a new file created `usb.log` with a new line each time you
+plug in that device to any port. You should *not* see a new line appended when
+you plug in any other device.
 
 # Contributing
 
