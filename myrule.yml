@@ -1,0 +1,8 @@
+---
+rules:
+  - name: example
+    command: echo "device connected!" >> usb.log
+    match:
+      on: Add
+      devices:
+      - include_devices: ex1.yml
