@@ -1,4 +1,4 @@
-use std::{path::PathBuf, process::Stdio, sync::Arc};
+use std::{env, path::PathBuf, process::Stdio, sync::Arc};
 
 use clap::Args;
 use parking_lot::Mutex;
@@ -30,7 +30,23 @@ pub struct UsbWatchRun {
 }
 
 impl Cmd for UsbWatchRun {
-    fn run(&self, _ctx: &mut Ctx) -> anyhow::Result<()> {
+    fn update_ctx(&self, ctx: &mut Ctx) -> anyhow::Result<()> {
+        ctx.tracing = true;
+        Ok(())
+    }
+
+    fn run(&self, ctx: &mut Ctx) -> anyhow::Result<()> {
+        // SAFETY: the program is single threaded at this point so no other threads are
+        // currently reading or writing to the environment.
+        match ctx.verbose {
+            0 => (),
+            1 => env::set_var("RUST_LOG", "usbwatch=info"),
+            2 => env::set_var("RUST_LOG", "usbwatch=debug"),
+            _ => env::set_var("RUST_LOG", "usbwatch=trace"),
+        }
+
+        tracing_subscriber::fmt::init();
+
         tokio::runtime::Builder::new_current_thread()
             .enable_io()
             .build()

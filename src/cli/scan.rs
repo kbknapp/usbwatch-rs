@@ -4,8 +4,9 @@ use clap::Args;
 use tokio_udev::Enumerator;
 
 use crate::{
-    cli::{Cmd, ForObject, OutFormat},
+    cli::{Cmd, ForObject},
     ctx::Ctx,
+    printer::OutFormat,
     usb::{UsbDevice, UsbPort},
 };
 
@@ -36,7 +37,6 @@ pub struct UsbWatchScan {
 
 impl Cmd for UsbWatchScan {
     fn run(&self, _ctx: &mut Ctx) -> anyhow::Result<()> {
-        use OutFormat::*;
         let mut scanner = Enumerator::new().unwrap();
         scanner.match_subsystem("usb").unwrap();
 
@@ -58,39 +58,39 @@ impl Cmd for UsbWatchScan {
         }
 
         match self.format {
-            Raw => {
+            OutFormat::Raw => {
                 if self.scan_for == ForObject::Ports || self.scan_for == ForObject::All {
-                    println!("{:#?}", ports);
+                    cli_println!("{:#?}", ports);
                 }
                 if self.scan_for == ForObject::Devices || self.scan_for == ForObject::All {
-                    println!("{:#?}", devices);
+                    cli_println!("{:#?}", devices);
                 }
             }
-            Yaml => {
+            OutFormat::Yaml => {
                 if self.scan_for == ForObject::Ports || self.scan_for == ForObject::All {
-                    println!("---\nports:");
+                    cli_println!("---\nports:");
                     for port in ports {
                         print!("  - ");
                         let yaml = serde_yaml::to_string(&port).unwrap();
                         for (i, line) in yaml.lines().skip(1).enumerate() {
                             if i == 0 {
-                                println!("{}", line);
+                                cli_println!("{}", line);
                             } else {
-                                println!("    {}", line);
+                                cli_println!("    {}", line);
                             }
                         }
                     }
                 }
                 if self.scan_for == ForObject::Devices || self.scan_for == ForObject::All {
-                    println!("---\ndevices:");
+                    cli_println!("---\ndevices:");
                     for device in devices {
                         print!("  - ");
                         let yaml = serde_yaml::to_string(&device).unwrap();
                         for (i, line) in yaml.lines().skip(1).enumerate() {
                             if i == 0 {
-                                println!("{}", line);
+                                cli_println!("{}", line);
                             } else {
-                                println!("    {}", line);
+                                cli_println!("    {}", line);
                             }
                         }
                     }
