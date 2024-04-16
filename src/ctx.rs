@@ -7,4 +7,5 @@ pub struct Ctx {
     pub tracing: bool,
     pub format: OutFormat,
     pub color: ColorChoice,
+    pub num_events: usize,
 }
