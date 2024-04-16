@@ -67,8 +67,7 @@ impl<'a> From<&'a Yaml> for Rule {
         let command_shell = if let Some(s) = yaml["command_shell"].as_str() {
             PathBuf::from(s)
         } else {
-            // @TODO un-hardcode /bin/bash
-            PathBuf::from("/bin/bash")
+            PathBuf::from("/bin/sh")
         };
 
         let command: String = if let Some(c) = yaml["command"].as_str() {

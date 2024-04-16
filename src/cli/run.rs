@@ -155,18 +155,12 @@ async fn exec(cmd: String, shell: PathBuf) -> Result<(), ()> {
 
     debug!("Executing command");
     let mut child = Command::new(&shell)
+        .arg("-c")
+        .arg(cmd)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()
         .expect("Failed to spawn child process");
-
-    {
-        let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-        stdin
-            .write_all(cmd.as_bytes())
-            .await
-            .expect("Failed to write to stdin");
-    }
 
     info!("Executing command");
     debug!("Waiting for child to exit");
