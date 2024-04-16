@@ -123,7 +123,7 @@ $ usbwatch create-rule \
   --name "Example Cruzer Connect"
   --devices-file ex1.yml \
   --on add \
-  --execute "echo 'Example was plugged in!'" > ex1_connect.yml
+  --execute 'echo "Example was plugged in!" >> usb.log' > ex1_connect.yml
 ```
 
 We can view the rule, and even make changes by hand if we needed to.
