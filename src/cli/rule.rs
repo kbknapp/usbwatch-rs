@@ -3,11 +3,7 @@ use std::path::PathBuf;
 use clap::Args;
 use serde::Serialize;
 
-use crate::{
-    cli::{Cmd},
-    ctx::Ctx,
-    usb::UsbEvent,
-};
+use crate::{cli::Cmd, ctx::Ctx, usb::UsbEvent};
 
 fn default_shell(p: &PathBuf) -> bool { p == &PathBuf::from("/bin/sh") }
 
